@@ -18,7 +18,9 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate{
     var receivedDataFromSocket = NSDictionary()
     var friendDic = NSDictionary()
     var badgeDic = NSDictionary()
-
+    var badgeNumber:NSInteger = 0
+    
+    
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
 
     func webSocket(webSocket: SRWebSocket!, didCloseWithCode code: Int, reason: String!, wasClean: Bool) {
@@ -43,8 +45,8 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate{
                 let date = CommonFunctions.getDateFromStringWithGMT(self.receivedDataFromSocket.objectForKey("created_at") as! String)
                 
                 sourceHelper.updatePrivateChatTable(self.database, friendDic: self.friendDic, message: msg, isSender: false, time: date, type: 0)
-                sourceHelper.updateAppDelegatChatListData(self.database)
                 self.calculateBadgeNumber()
+                sourceHelper.updateAppDelegatChatListData(self.database)
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
@@ -67,9 +69,12 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate{
     
     func calculateBadgeNumber() {
         
+        badgeNumber++
+        print(badgeNumber)
         let oldBadgeNumber = sourceHelper.getBadgeNumber(database, friendDic: friendDic)
-        
-        
+        print(badgeNumber+oldBadgeNumber)
+
+        sourceHelper.updateChatListBadgeNumber(database, friendID: friendDic.objectForKey(FRIEND_ID)!.integerValue, badge:badgeNumber+oldBadgeNumber)
     }
 
     
@@ -117,7 +122,9 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate{
             cell.msgReceivedDate?.text = dataSource[indexPath.row].valueForKey(FRIEND_MESSAGE_CREATE_TIME) as? String
             
             if (dataSource[indexPath.row].valueForKey(FRIEND_MESSAGE_BADGE) as! Int>0) {
-                cell.badge?.text = dataSource[indexPath.row].valueForKey(FRIEND_MESSAGE_BADGE) as? String
+                
+                cell.badge?.text = "\(dataSource[indexPath.row].valueForKey(FRIEND_MESSAGE_BADGE) as! Int)"
+                cell.badge?.hidden = false
             }else{
                 cell.badge?.hidden = true
             }
@@ -128,12 +135,16 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate{
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath:NSIndexPath) -> CGFloat
     {
         return 70
-        
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        
+        badgeNumber = 0
+        sourceHelper.updateChatListBadgeNumber(database, friendID: self.dataSource[indexPath.row].valueForKey(FRIEND_ID) as! Int, badge: 0)
+        sourceHelper.updateAppDelegatChatListData(database)
+
         let mesChatVC = XHDemoWeChatMessageTableViewController.init()
         let friend_id = self.dataSource[indexPath.row].valueForKey(FRIEND_ID)
         let friend_name = self.dataSource[indexPath.row].valueForKey(FRIEND_NAME)

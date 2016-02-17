@@ -14,7 +14,10 @@ let popMenuHelper = PopMenuHelper()
 let commenBase = CommenBase()
 let socketHelper = SocketHelper()
 
-//let webSocket = SRWebSocket()
+
+//*****************-- API LINK --**************//
+
+let API_URL = "ws://192.168.1.111:9503/"
 
 //*****************-- STATUS CODE --**************//
 
@@ -79,13 +82,13 @@ func GET_FRIEND_LIST_CMD(SELFS_ID:Int)->String{
 
 //*****************-- CMD CREATE GROUP CHAT--**************//
 
-func CREATE_GROUP_CHAT(GROUP_NAME:String, SELFS_ID:Int,INVITE_ID:String)->String{
+func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, SELFS_ID:Int,INVITE_ID:String)->String{
     return "{\"cmd\":\"createGroup\",\"channal\":0,\"name\":\"\(GROUP_NAME)\",\"from\":\(SELFS_ID),\"inviteUsers\":\"\(INVITE_ID)\"}"
 }
 
 //*****************-- CMD CREATE PRIVATE CHAT--**************//
 
-func CREATE_PRIVATE_CHAT(SELFS_ID:Int, TO_ID:Int,CHAT_DATA:String,TYPE:String)->String{
+func CREATE_PRIVATE_CHAT_CMD(SELFS_ID:Int, TO_ID:Int,CHAT_DATA:String,TYPE:String)->String{
     return "{\"cmd\":\"message\",\"from\":\(SELFS_ID),\"to\":\(TO_ID),\"channal\":0,\"data\":\"\(CHAT_DATA)\",\"type\":\"\(TYPE)\"}"
 }
 
@@ -106,13 +109,26 @@ func UPDATE_CHAT_LIST(CHAT_FRIEND_ID:Int, IS_SHOW:Int, IS_GROUP:Int)->String{
 }
 
 func UPDATE_CHAT_LIST_FOR_BADGE(BADGE:Int, CHAT_FRIEND_ID:Int)->String{
-    return " UPDATE 'chat_list' SET 'badge' = '\(BADGE)' WHERE 'friend_id' = '\(CHAT_FRIEND_ID)';"
+    return " UPDATE chat_list SET badge = \(BADGE) WHERE friend_id = \(CHAT_FRIEND_ID);"
 }
 
 func SELECT_CHAT_LIST_FOR_BADGE(CHAT_FRIEND_ID:Int)->String{
-    return " SELECT 'badge' from 'chat_list' WHERE 'friend_id' = '\(CHAT_FRIEND_ID)';"
+    return " SELECT badge from chat_list WHERE friend_id = \(CHAT_FRIEND_ID);"
 }
 
 func SELECT_CHAT_LIST(CHAT_TABLE_ID:Int)->String{
-    return "select user_id, user_name, avatar, message, create_time, badge from friends join chat_list on friends.user_id = chat_list.friend_id join '\(CHAT_TABLE_ID)' ON friends.user_id = '\(CHAT_TABLE_ID)' where is_show =1 order by create_time desc limit 1;"
+    return " select user_id, user_name, avatar, message, create_time, badge from friends join chat_list on friends.user_id = chat_list.friend_id join '\(CHAT_TABLE_ID)' ON friends.user_id = '\(CHAT_TABLE_ID)' where is_show =1 order by create_time desc limit 1;"
 }
+
+func UPDATE_FRIENDS_LIST_TABLE(TABLE_NAME:String, INSERT_ID:Int, INSERT_NAME:String, INSERT_AVATAR:String)->String{
+    return " insert into '\(TABLE_NAME)' ( 'user_id', 'user_name', 'avatar') values ( '\(INSERT_ID)', '\(INSERT_NAME)', '\(INSERT_AVATAR)');"
+}
+
+func DELETE_FRIENDS_LIST_TABLE(TABLE_NAME:String)->String{
+    return " DELETE FROM '\(TABLE_NAME)';"
+}
+
+func RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(TABLE_NAME:String)->String{
+    return " UPDATE sqlite_sequence set seq = 0 where name = '\(TABLE_NAME)';"
+}
+

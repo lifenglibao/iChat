@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var CHAT_LIST_DATA = NSMutableArray()
 
     func openWebSocket () {
-        self.webSocket = SRWebSocket.init(URL: NSURL.init(string: "ws://192.168.1.129:9503/"))
+        self.webSocket = SRWebSocket.init(URL: NSURL.init(string: API_URL))
         self.webSocket.open()
     }
 

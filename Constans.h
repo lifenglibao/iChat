@@ -12,6 +12,10 @@
 
 #endif /* Constans_h */
 
+//*****************-- API LINK --**************//
+
+#define API_URL @"ws://192.168.1.111:9503/"
+
 //*****************-- STATUS CODE --**************//
 
 #define STATUS_CODE_SUCCESS_LOGIN   = 1010
@@ -52,11 +56,11 @@
 
 //*****************-- CMD CREATE GROUP CHAT--**************//
 
-#define CREATE_GROUP_CHAT(GROUP_NAME,SELFS_ID,INVITE_ID) [NSString stringWithFormat:@" {\"cmd\":\"createGroup\",\"channal\":0,\"name\":\"%@\",\"from\":%d,\"inviteUsers\":\"%@\"}",GROUP_NAME,SELFS_ID,INVITE_ID]
+#define CREATE_GROUP_CHAT_CMD(GROUP_NAME,SELFS_ID,INVITE_ID) [NSString stringWithFormat:@" {\"cmd\":\"createGroup\",\"channal\":0,\"name\":\"%@\",\"from\":%d,\"inviteUsers\":\"%@\"}",GROUP_NAME,SELFS_ID,INVITE_ID]
 
 //*****************-- CMD CREATE PRIVATE CHAT--**************//
 
-#define CREATE_PRIVATE_CHAT(SELFS_ID,TO_ID,CHAT_DATA,TYPE) [NSString stringWithFormat:@" {\"cmd\":\"message\",\"from\":%ld,\"to\":%ld,\"channal\":0,\"data\":\"%@\",\"type\":\"%@\"}",SELFS_ID,TO_ID,CHAT_DATA,TYPE]
+#define CREATE_PRIVATE_CHAT_CMD(SELFS_ID,TO_ID,CHAT_DATA,TYPE) [NSString stringWithFormat:@" {\"cmd\":\"message\",\"from\":%ld,\"to\":%ld,\"channal\":0,\"data\":\"%@\",\"type\":\"%@\"}",SELFS_ID,TO_ID,CHAT_DATA,TYPE]
 
 
 //****************-- DATA BASE --******************//

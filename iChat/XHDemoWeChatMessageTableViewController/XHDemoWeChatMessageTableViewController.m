@@ -438,7 +438,7 @@
 
     if (!_isGetLocalChatData) {
         NSInteger friend_id = [[_friends_dic objectForKey:FRIEND_ID] integerValue];
-        [_webSocket send:CREATE_PRIVATE_CHAT(_appDelegate.SELF_USER_ID, friend_id, text, MSG_TYPE_TEXT)];
+        [_webSocket send:CREATE_PRIVATE_CHAT_CMD(_appDelegate.SELF_USER_ID, friend_id, text, MSG_TYPE_TEXT)];
         
         [_sourceHelper updatePrivateChatTable:_fmDataBase friendDic:_friends_dic message:text isSender:true time:date type:0];
 //        [self updatePrivateChatTable:text isSender:YES createTime:date type:0];

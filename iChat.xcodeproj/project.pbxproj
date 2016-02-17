@@ -182,7 +182,6 @@
 		0DC1AAA61C3F8B6A006D89E0 /* CHANGELOG.md in Sources */ = {isa = PBXBuildFile; fileRef = 0DC1AAA21C3F8B6A006D89E0 /* CHANGELOG.md */; };
 		0DC1AAA71C3F8B6A006D89E0 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC1AAA41C3F8B6A006D89E0 /* JSONKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		0DC1AAA81C3F8B6A006D89E0 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 0DC1AAA51C3F8B6A006D89E0 /* README.md */; };
-		0DCC8F9B1C6348EC0023EC44 /* SwiftBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCC8F9A1C6348EC0023EC44 /* SwiftBadge.swift */; };
 		0DCC8FA11C6457E30023EC44 /* iChat.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 0DCC8FA01C6457E30023EC44 /* iChat.sqlite */; };
 		1024C0C163B3DF5C285BB802 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0800CB942CEBD980102895BE /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -474,7 +473,6 @@
 		0DC1AAA31C3F8B6A006D89E0 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
 		0DC1AAA41C3F8B6A006D89E0 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		0DC1AAA51C3F8B6A006D89E0 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		0DCC8F9A1C6348EC0023EC44 /* SwiftBadge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftBadge.swift; sourceTree = "<group>"; };
 		0DCC8FA01C6457E30023EC44 /* iChat.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = iChat.sqlite; sourceTree = SOURCE_ROOT; };
 		3B608AB18C62377E01B9A2B4 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		F395CE202353E568A32B0176 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
@@ -579,7 +577,6 @@
 		0D037FF11C3B57B90081C83C /* Helper */ = {
 			isa = PBXGroup;
 			children = (
-				0DCC8F9A1C6348EC0023EC44 /* SwiftBadge.swift */,
 				0D07D7CC1C5B47290057F02A /* AuxilaryService.h */,
 				0D07D7CD1C5B47290057F02A /* AuxilaryService.m */,
 				0D07D7C91C5A2BC70057F02A /* CommonFunctions.h */,
@@ -1494,7 +1491,6 @@
 				0D0382DF1C3E36C00081C83C /* SESelectionGrabber.m in Sources */,
 				0D0382C71C3E36C00081C83C /* XHDisplayMediaViewController.m in Sources */,
 				0D0382C11C3E36C00081C83C /* XHMessageBubbleHelper.m in Sources */,
-				0DCC8F9B1C6348EC0023EC44 /* SwiftBadge.swift in Sources */,
 				0D0382C81C3E36C00081C83C /* XHDisplayTextViewController.m in Sources */,
 				0D0382EF1C3E36C00081C83C /* XHMessageInputView.m in Sources */,
 				0D0382D31C3E36C00081C83C /* XHAnnotation.m in Sources */,

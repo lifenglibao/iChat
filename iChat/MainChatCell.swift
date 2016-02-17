@@ -14,7 +14,7 @@ class MainChatCell: UITableViewCell {
     @IBOutlet var userName          :UILabel?
     @IBOutlet var msgContent        :UILabel?
     @IBOutlet var msgReceivedDate   :UILabel?
-    @IBOutlet var badge             :SwiftBadge?
+    @IBOutlet var badge             :UILabel?
 
     //    @IBOutlet var unknowLabel       :UILabel!
     //    @IBOutlet var videoImageView    :UIImageView?

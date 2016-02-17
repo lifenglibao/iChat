@@ -202,11 +202,11 @@ class SourceHelper: NSObject{
     }
     
     
-    func updateChatListBadgeNumber (database:FMDatabase, friendDic:NSDictionary, badge:Int) {
+    func updateChatListBadgeNumber (database:FMDatabase, friendID:Int, badge:Int) {
         if database.open() {
             do {
 
-                let sql    = UPDATE_CHAT_LIST_FOR_BADGE(badge, CHAT_FRIEND_ID: friendDic.objectForKey(FRIEND_ID)!.integerValue)
+                let sql    = UPDATE_CHAT_LIST_FOR_BADGE(badge, CHAT_FRIEND_ID: friendID)
                 try database.executeUpdate(sql, values: nil)
                 
             } catch let error as NSError {
@@ -228,15 +228,7 @@ class SourceHelper: NSObject{
                 let s      = try database.executeQuery(sql, values: nil)
                 
                 while s.next(){
-                    
-                    var test = Int32()
-                    
-                    test =  (s.intForColumn(FRIEND_MESSAGE_BADGE))
-                    print(test)
-
                     badge  = NSNumber(int: s.intForColumn(FRIEND_MESSAGE_BADGE)).integerValue
-                    print(badge)
-
                 }
                 
             } catch let error as NSError {
@@ -246,6 +238,7 @@ class SourceHelper: NSObject{
             print("database can not open!!!")
         }
         
+        print("-----now badge is ----\n\(badge)")
         return badge
     }
     func isAlreadyOnChatListTable (database:FMDatabase, friendDic:NSDictionary)->Bool {
@@ -277,6 +270,31 @@ class SourceHelper: NSObject{
         }
         
         return false
+    }
+    
+    func updateFriendsTable(database:FMDatabase,dataSource:NSMutableArray) {
+        
+        let tableName = "friends"
+        
+        if database.open(){
+            do {
+                
+                try database.executeUpdate(DELETE_FRIENDS_LIST_TABLE(tableName), values: nil)
+                try database.executeUpdate(RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(tableName), values: nil)
+                
+                for (var i = 0; i<dataSource.count; i++) {
+                    
+                    try database.executeUpdate(UPDATE_FRIENDS_LIST_TABLE(tableName, INSERT_ID: dataSource.valueForKey("userId")[i].integerValue, INSERT_NAME: dataSource.valueForKey("username")[i].stringValue, INSERT_AVATAR: dataSource.valueForKey("avatar")[i].stringValue), values: nil)
+                }
+                print("Friends Table table has updated !!!!")
+                database.close()
+            } catch let error as NSError {
+                database.close()
+                print("failed: \(error.localizedDescription)")
+            }
+        }else{
+            print("database can not open!!!")
+        }
     }
 
 }

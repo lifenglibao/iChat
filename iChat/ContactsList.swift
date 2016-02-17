@@ -13,7 +13,8 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
     
     var searchBar : UISearchBar!
     var dataSource  = NSMutableArray()
-    
+    var database = FMDatabase()
+
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
 
     
@@ -45,35 +46,12 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         if (dic.objectForKey("cmd")!.isEqualToString("getFriendList") && dic.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
             dataSource.addObjectsFromArray(dic.valueForKey("data") as! NSMutableArray as [AnyObject])
             self.tableView.reloadData()
-            updateFriendsTable(dic)
+            sourceHelper.updateFriendsTable(database, dataSource: dataSource)
         }else{
             
         }
         CommonFunctions.dismissGlobalHUD()
     }
-    
-    func updateFriendsTable(userInfo:NSDictionary) {
-        
-        let finalName = "friends"
-        let database = FMDatabase.init(path: appDelegate.getdestinationPath())
-        
-        if database.open(){
-            do {
-                
-                for (var i = 0; i<dataSource.count; i++) {
-                    try database.executeUpdate("insert into \(finalName) (user_id, user_name, avatar) values (?, ?, ?)", values: ["\(dataSource.valueForKey("userId")[i])", "\(dataSource.valueForKey("username")[i])", "\(dataSource.valueForKey("avatar")[i])"])
-                }
-                print("Friends Table table has updated !!!!")
-                database.close()
-            } catch let error as NSError {
-                database.close()
-                print("failed: \(error.localizedDescription)")
-            }
-        }else{
-            print("database can not open!!!")
-        }
-    }
-
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
@@ -85,6 +63,7 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         appDelegate.webSocket.delegate = self
         CommonFunctions.showGlobalProgressHUDWithTitle("Loading...")
         socketHelper.socketCMDStatus(CMD_GET_FRIENDS, object: appDelegate.SELF_USER_ID)
+        database = FMDatabase.init(path: appDelegate.getdestinationPath())
 
         self.searchBar = UISearchBar.init(frame:CGRectMake(0, 0, self.view.frame.size.width, 44))
         self.searchBar.sizeToFit()
