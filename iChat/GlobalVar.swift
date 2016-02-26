@@ -125,10 +125,10 @@ func UPDATE_FRIENDS_LIST_TABLE(TABLE_NAME:String, INSERT_ID:Int, INSERT_NAME:Str
 }
 
 func DELETE_FRIENDS_LIST_TABLE(TABLE_NAME:String)->String{
-    return " DELETE FROM \(TABLE_NAME);"
+    return " DELETE FROM '\(TABLE_NAME)';"
 }
 
 func RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(TABLE_NAME:String)->String{
-    return " UPDATE sqlite_sequence set seq = 0 where name = \(TABLE_NAME);"
+    return " UPDATE sqlite_sequence set seq = 0 where name = '\(TABLE_NAME)';"
 }
 
