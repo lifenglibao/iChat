@@ -14,6 +14,9 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
     @IBOutlet var loginBtn  : UIButton!
     @IBOutlet var mobileNum : UITextField!
     @IBOutlet var passWord  : UITextField!
+    var receivedDataFromSocket = NSDictionary()
+    var database = FMDatabase()
+    var friendDataSource  = NSMutableArray()
 
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
@@ -26,6 +29,7 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
         
         super.viewDidLoad()
         appDelegate.webSocket.delegate = self
+        database = FMDatabase.init(path: appDelegate.getdestinationPath())
     }
     
     @IBAction func login() {
@@ -39,9 +43,23 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
     }
     
     func webSocket(webSocket: SRWebSocket!, didReceiveMessage message: AnyObject!) {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            self.forUserLogin(message)
-        })
+        
+        var dic = NSDictionary()
+        dic = message.dataUsingEncoding(NSUTF8StringEncoding)?.objectFromJSONData() as! NSDictionary
+        
+        print("webSocket has received msg!!!:-------\n",dic)
+        
+        if (dic.objectForKey("cmd") as! String == CMD_LOGIN && dic.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_LOGIN) {
+            // login successfully
+            self.appDelegate.IS_LOGIN = true
+            self.appDelegate.SELF_USER_ID  = dic.objectForKey(USER_ID)!.integerValue
+            self.appDelegate.SELF_USER_NAME  = dic.objectForKey(NAME) as! String
+            self.appDelegate.SELF_USER_AVATAR  = dic.objectForKey(AVATAR) as! String
+            self.updateAccountTable(dic)
+            self.dismissViewControllerAnimated(true, completion: nil)
+            socketHelper.socketCMDStatus(CMD_GET_FRIENDS, object: self.appDelegate.SELF_USER_ID)
+        }
+        CommonFunctions.dismissGlobalHUD()
     }
     
     func webSocket(webSocket: SRWebSocket!, didFailWithError error: NSError!) {
@@ -53,34 +71,10 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
     func webSocketDidOpen(webSocket: SRWebSocket!) {
         print("webSocket has did open!!!")
     }
-
-    
-    func forUserLogin (msg:AnyObject) {
-        
-        var dic = NSDictionary()
-        dic = msg.dataUsingEncoding(NSUTF8StringEncoding)?.objectFromJSONData() as! NSDictionary
-        
-        print("webSocket has received msg!!!:-------\n",dic)
-        
-        if (dic.objectForKey("cmd")!.isEqualToString("login") &&    dic.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_LOGIN) {
-            // login successfully
-            appDelegate.IS_LOGIN = true
-            appDelegate.SELF_USER_ID  = dic.objectForKey(USER_ID)!.integerValue
-            appDelegate.SELF_USER_NAME  = dic.objectForKey(NAME) as! String
-            appDelegate.SELF_USER_AVATAR  = dic.objectForKey(AVATAR) as! String
-            updateAccountTable(dic)
-            self.dismissViewControllerAnimated(true, completion: nil)
-        }else{
-            // show login field informations
-            
-        }
-        CommonFunctions.dismissGlobalHUD()
-    }
     
     func updateAccountTable(userInfo:NSDictionary) {
         
         let finalName = "accounts"
-        let database = FMDatabase.init(path: appDelegate.getdestinationPath())
         
         if database.open(){
             do {

@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var SELF_USER_NAME : String = ""
     var SELF_USER_AVATAR : String = ""
     var CHAT_LIST_DATA = NSMutableArray()
+    var GROUP_FRIEND_DATA = NSMutableArray()
 
     func openWebSocket () {
         self.webSocket = SRWebSocket.init(URL: NSURL.init(string: API_URL))

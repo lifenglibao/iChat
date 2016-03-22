@@ -17,7 +17,8 @@ let socketHelper = SocketHelper()
 
 //*****************-- API LINK --**************//
 
-let API_URL = "ws://192.168.1.111:9503/"
+let API_URL = "ws://192.168.1.129:9503/" //test
+//let API_URL = "ws://52.76.146.143:9501/" //dev
 
 //*****************-- STATUS CODE --**************//
 
@@ -37,19 +38,26 @@ let MSG_TYPE_TEXT    = "text"
 let FRIEND_ID        = "friend_id"
 let FRIEND_NAME      = "friend_name"
 let FRIEND_AVATAR    = "friend_avatar"
-let FRIEND_MESSAGE   = "message"
-let FRIEND_MESSAGE_CREATE_TIME    = "create_time"
-let FRIEND_MESSAGE_TYPE           = "type"
-let FRIEND_MESSAGE_STATUS         = "status"
-let FRIEND_MESSAGE_BADGE          = "badge"
+
+let GL_MESSAGE                = "message"
+let GL_IS_SENDER              = "is_sender"
+let GL_MESSAGE_CREATE_TIME    = "create_time"
+let GL_MESSAGE_TYPE           = "type"
+let GL_IS_GROUP               = "is_group"
+let GL_IS_SHOW                = "is_show"
+let GL_GROUP_ID               = "group_id"
+let GL_GROUP_NAME             = "group_name"
+let GL_MESSAGE_BADGE          = "badge"
+let GL_TABLE_NAME             = "table_name"
 
 let SELF_IMG         = "http://img.woyaogexing.com/2015/02/23/648ce6c426d58542!200x200.jpg"
 //*****************-- CMD --**************//
 
-let CMD_LOGIN        = "login"
-let CMD_GET_FRIENDS  = "getFriendList"
-let CMD_GROUP_CHAT   = "createGroup"
-let CMD_PRIVATE_CHAT = "message"
+let CMD_LOGIN               = "login"
+let CMD_GET_FRIENDS         = "getFriendList"
+let CMD_CREATE_GROUP_CHAT   = "createGroup"
+let CMD_MESSAGE             = "message"
+let CMD_FROM_MESSAGE        = "fromMsg"
 
 
 //*****************-- GET VIEW CONTROLLER FROM STORY BOARD --**************//
@@ -82,8 +90,8 @@ func GET_FRIEND_LIST_CMD(SELFS_ID:Int)->String{
 
 //*****************-- CMD CREATE GROUP CHAT--**************//
 
-func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, SELFS_ID:Int,INVITE_ID:String)->String{
-    return "{\"cmd\":\"createGroup\",\"channal\":0,\"name\":\"\(GROUP_NAME)\",\"from\":\(SELFS_ID),\"inviteUsers\":\"\(INVITE_ID)\"}"
+func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, CHANNAL_ID:Int, SELFS_ID:Int,INVITE_ID:String)->String{
+    return "{\"cmd\":\"createGroup\",\"channal\":\(CHANNAL_ID),\"name\":\"\(GROUP_NAME)\",\"from\":\(SELFS_ID),\"inviteUsers\":\"\(INVITE_ID)\"}"
 }
 
 //*****************-- CMD CREATE PRIVATE CHAT--**************//
@@ -96,39 +104,46 @@ func CREATE_PRIVATE_CHAT_CMD(SELFS_ID:Int, TO_ID:Int,CHAT_DATA:String,TYPE:Strin
 
 //****************-- DATA BASE --******************//
 
-func CREATE_PRIVATE_CHAT_TABLE(CHAT_FRIEND_ID:Int)->String{
-    return " CREATE TABLE IF NOT EXISTS '\(CHAT_FRIEND_ID)' ( 'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'message' TEXT NOT NULL , 'status' INTEGER NOT NULL , 'create_time' DATETIME NOT NULL ,'type' INTEGER NOT NULL);"
+func CREATE_CHAT_TABLE(TABLE_NAME:String)->String{
+    return " CREATE TABLE IF NOT EXISTS '\(TABLE_NAME)' ( 'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'server_msg_id' INTEGER , 'friend_id' INTEGER NOT NULL , 'friend_name' VARCHAR NOT NULL , 'friend_avatar' VARCHAR NOT NULL , 'message' TEXT, 'is_sender' INTEGER NOT NULL , 'create_time' DATETIME NOT NULL , 'type' INTEGER NOT NULL , 'is_group' INTEGER, 'is_show' INTEGER, 'group_id' INTEGER, 'group_name' INTEGER);"
 }
 
-func UPDATE_PRIVATE_CHAT_TABLE(CHAT_FRIEND_ID:Int, MESSAGE:String, STATUS:Int, TIME:String, TYPE:Int)->String{
-    return " INSERT INTO '\(CHAT_FRIEND_ID)' ( 'message', 'status', 'create_time', 'type') VALUES ( '\(MESSAGE)', '\(STATUS)', '\(TIME)', '\(TYPE)');"
+func UPDATE_CHAT_TABLE(TABLE_NAME:String, CHAT_FRIEND_ID:Int, CHAT_FRIEND_NAME:String, CHAT_FRIEND_AVA:String, MESSAGE:String, IS_SENDER:Int, TIME:String, TYPE:Int, IS_GROUP:Int, IS_SHOW:Int, GROUP_ID:Int, GROUP_NAME:String)->String{
+    return " INSERT INTO '\(TABLE_NAME)' ( 'friend_id', 'friend_name', 'friend_avatar', 'message', 'is_sender', 'create_time', 'type', 'is_group', 'is_show', 'group_id', 'group_name') VALUES ( '\(CHAT_FRIEND_ID)', '\(CHAT_FRIEND_NAME)', '\(CHAT_FRIEND_AVA)', '\(MESSAGE)', '\(IS_SENDER)', '\(TIME)', '\(TYPE)', '\(IS_GROUP)', '\(IS_SHOW)', '\(GROUP_ID)', '\(GROUP_NAME)');"
 }
 
-func UPDATE_CHAT_LIST(CHAT_FRIEND_ID:Int, IS_SHOW:Int, IS_GROUP:Int)->String{
-    return " INSERT INTO 'chat_list' ( 'friend_id', 'is_show', 'is_group') VALUES ('\(CHAT_FRIEND_ID)', '\(IS_SHOW)', '\(IS_GROUP)');"
+func UPDATE_CHAT_BADGE(TABLE_NAME:String, GROUP_ID:Int, GROUP_NAME:String, IS_GROUP:Int, IS_SHOW:Int)->String{
+    return " INSERT INTO 'chat_badge' ( 'table_name', 'group_id', 'group_name', 'is_group', 'is_show') VALUES ('\(TABLE_NAME)', '\(GROUP_ID)', '\(GROUP_NAME)', '\(IS_GROUP)', '\(IS_SHOW)');"
 }
 
-func UPDATE_CHAT_LIST_FOR_BADGE(BADGE:Int, CHAT_FRIEND_ID:Int)->String{
-    return " UPDATE chat_list SET badge = \(BADGE) WHERE friend_id = \(CHAT_FRIEND_ID);"
+func UPDATE_CHAT_BADGE_FOR_BADGE(TABLE_NAME:String, BADGE:Int)->String{
+    return " update chat_badge set badge = \(BADGE) where table_name = \(TABLE_NAME);"
 }
 
-func SELECT_CHAT_LIST_FOR_BADGE(CHAT_FRIEND_ID:Int)->String{
-    return " SELECT badge from chat_list WHERE friend_id = \(CHAT_FRIEND_ID);"
+func SELECT_CHAT_LIST_FOR_BADGE(TABLE_NAME:String)->String{
+    return " SELECT badge from chat_badge WHERE table_name = \(TABLE_NAME);"
 }
 
-func SELECT_CHAT_LIST(CHAT_TABLE_ID:Int)->String{
-    return " select user_id, user_name, avatar, message, create_time, badge from friends join chat_list on friends.user_id = chat_list.friend_id join '\(CHAT_TABLE_ID)' ON friends.user_id = '\(CHAT_TABLE_ID)' where is_show =1 order by create_time desc limit 1;"
+func FIND_CHAT_TABLE(TABLE_NAME:String)->String{
+    return " select friend_id, friend_name, friend_avatar, message, is_sender, create_time, type, chat_badge.is_group, chat_badge.is_show, chat_badge.group_id, chat_badge.group_name, badge, chat_badge.table_name from '\(TABLE_NAME)' join chat_badge on chat_badge.table_name = '\(TABLE_NAME)' where chat_badge.is_show =1 and '\(TABLE_NAME)'.is_show =1 order by create_time desc limit 1;"
 }
 
 func UPDATE_FRIENDS_LIST_TABLE(TABLE_NAME:String, INSERT_ID:Int, INSERT_NAME:String, INSERT_AVATAR:String)->String{
     return " insert into '\(TABLE_NAME)' ( 'user_id', 'user_name', 'avatar') values ( '\(INSERT_ID)', '\(INSERT_NAME)', '\(INSERT_AVATAR)');"
 }
 
-func DELETE_FRIENDS_LIST_TABLE(TABLE_NAME:String)->String{
-    return " DELETE FROM \(TABLE_NAME);"
+func CLEAR_FRIENDS_LIST_TABLE(TABLE_NAME:String)->String{
+    return " DELETE FROM \(TABLE_NAME) where 1=1;"
 }
 
 func RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(TABLE_NAME:String)->String{
     return " UPDATE sqlite_sequence set seq = 0 where name = \(TABLE_NAME);"
 }
 
+func GET_FRIEDNS(TABLE_NAME:String)->String{
+    return " select user_id, user_name, avatar from \(TABLE_NAME);"
+}
+
+func GET_FRIEDNS_BY_ID(TABLE_NAME:String, SEARCH_ID:Int)->String{
+    return " select user_name, avatar from \(TABLE_NAME) where user_id = \(SEARCH_ID);"
+}

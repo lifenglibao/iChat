@@ -10,9 +10,15 @@ import Foundation
 import UIKit
 
 
+protocol popMenuHelperDelegate:NSObjectProtocol{
+    //call back
+    func addContactForGroup()
+}
+
 class PopMenuHelper: NSObject{
 
     var popMenu  = XHPopMenu?()
+    var delegate : popMenuHelperDelegate?
 
     func initPopMenus () ->XHPopMenu {
         if (popMenu == nil) {
@@ -50,6 +56,7 @@ class PopMenuHelper: NSObject{
                 popMenuItems.addObject(popMenuItem)
             }
             
+            
             weak var weakSelf = self
             popMenu = XHPopMenu.init(menus: popMenuItems as [AnyObject])
             
@@ -58,11 +65,14 @@ class PopMenuHelper: NSObject{
                 if (ind == 2){
                     
                 }else if (ind == 0){
-                    
+                    if (weakSelf!.delegate != nil) {
+                        weakSelf!.delegate?.addContactForGroup()
+                    }
                 }
             }
         }
         return popMenu!
     }
+    
 
 }

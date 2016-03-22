@@ -17,3 +17,5 @@
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "MBProgressHUD.h"
 #import "CommonFunctions.h"
+#import "MultiSelectItem.h"
+#import "MultiSelectViewController.h"

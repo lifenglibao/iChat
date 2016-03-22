@@ -88,7 +88,7 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         cell.userName?.text = dataSource[indexPath.row].valueForKey(NAME) as? String
         
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            if (sourceHelper.isNotStringNull(self.dataSource[indexPath.row].valueForKey(AVATAR)!)) {
+            if (sourceHelper.isNotNull(self.dataSource[indexPath.row].valueForKey(AVATAR)!)) {
                 cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(AVATAR) as! String), placeholderImage: UIImage(named: "icon"))
             }else{
                 cell.avatarImg.image = UIImage(named:"icon")
@@ -112,7 +112,7 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         let friend_id = self.dataSource[indexPath.row].valueForKey(USER_ID)
         let friend_name = self.dataSource[indexPath.row].valueForKey(NAME)
         let friend_avatar = self.dataSource[indexPath.row].valueForKey(AVATAR)
-        mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as! [NSObject : AnyObject]
+        mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
         mesChatVC.isGetLocalChatData = true
         self.tabBarController?.navigationController?.pushViewController(mesChatVC, animated: true)
 

@@ -14,7 +14,8 @@
 
 //*****************-- API LINK --**************//
 
-#define API_URL @"ws://192.168.1.111:9503/"
+#define API_URL @"ws://192.168.1.111:9503/" //test
+//#define API_URL @"ws://52.76.146.143:9501/" //dev
 
 //*****************-- STATUS CODE --**************//
 
@@ -34,17 +35,37 @@
 #define FRIEND_ID       @"friend_id"
 #define FRIEND_NAME     @"friend_name"
 #define FRIEND_AVATAR   @"friend_avatar"
-#define FRIEND_MESSAGE  @ "message"
-#define FRIEND_MESSAGE_CREATE_TIME    @ "create_time"
-#define FRIEND_MESSAGE_TYPE    @ "type"
-#define FRIEND_MESSAGE_STATUS  @ "status"
+
+#define GL_MESSAGE                  @ "message"
+#define GL_MESSAGE_CREATE_TIME      @ "create_time"
+#define GL_MESSAGE_TYPE             @ "type"
+#define GL_IS_SENDER                @ "is_sender"
+#define GL_IS_GROUP                 @ "is_group"
+#define GL_IS_SHOW                  @ "is_show"
+#define GL_GROUP_ID                 @ "group_id"
+#define GL_GROUP_NAME               @ "group_name"
+#define GL_MESSAGE_BADGE            @ "badge"
+#define GL_TABLE_NAME               @ "table_name"
+
+
 //*****************-- CMD --**************//
 
 #define CMD_LOGIN               @ "login"
 #define CMD_GET_FRIENDS         @ "getFriendList"
-#define CMD_GROUP_CHAT          @ "createGroup"
-#define CMD_PRIVATE_CHAT        @ "message"
-#define CMD_PRIVATE_CHAT_FROM   @ "fromMsg"
+#define CMD_CREATE_GROUP_CHAT   @ "createGroup"
+#define CMD_MESSAGE             @ "message"
+#define CMD_FROM_MESSAGE        @ "fromMsg"
+
+
+//*****************-- OVERRIDE UICOLOR --**************//
+
+#ifndef RGB
+#define RGB(R,G,B) [UIColor colorWithRed:R/255.0f green:G/255.0f blue:B/255.0f alpha:1.0f]
+#endif
+
+#ifndef RGBALPHA
+#define RGBALPHA(R,G,B,A) [UIColor colorWithRed:R/255.0f green:G/255.0f blue:B/255.0f alpha:A]
+#endif
 
 //*****************-- CMD LOGIN--**************//
 

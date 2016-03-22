@@ -10,7 +10,7 @@
         <!--MainChat-->
         <scene sceneID="76q-tt-w7m">
             <objects>
-                <tableViewController id="4Tf-L3-P4T" customClass="MainChat" customModule="iChat" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="MainChat" id="4Tf-L3-P4T" customClass="MainChat" customModule="iChat" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="iBP-wV-uav">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

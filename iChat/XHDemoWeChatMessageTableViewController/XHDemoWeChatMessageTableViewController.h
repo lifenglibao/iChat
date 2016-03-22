@@ -15,5 +15,7 @@
 @property (nonatomic,strong) NSDictionary *friends_dic;
 @property (nonatomic,strong) UIViewController *host;
 @property (nonatomic) BOOL isGetLocalChatData;
+@property (nonatomic) BOOL isPrivateChat;
+@property (nonatomic) BOOL isGroupChat;
 
 @end

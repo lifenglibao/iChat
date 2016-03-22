@@ -53,8 +53,19 @@
     if (!_isGetLocalChatData) {
         
         if (_friends_dic!=nil || _receivedDataFromSocket!=nil) {
-            [_sourceHelper updatePrivateChatTable:_fmDataBase friendDic:_friends_dic message:text isSender:false time:date type:0];
-//            [self updatePrivateChatTable:text isSender:NO createTime:date type:0];
+            
+            [_sourceHelper updateChatTable:_fmDataBase
+                                 tableName:[_friends_dic objectForKey:FRIEND_ID]
+                                  friendID:[[_friends_dic objectForKey:FRIEND_ID] integerValue]
+                                   message:text
+                                  isSender:false
+                                      time:date
+                                      type:0
+                                   isGroup:false
+                                    isShow:true
+                                   groupID:0
+                                 groupName:@""];
+            
             [_sourceHelper updateAppDelegatChatListData:_fmDataBase];
         }
         
@@ -139,6 +150,7 @@
     [[XHAudioPlayerHelper shareInstance] stopAudio];
     [_fmDataBase close];
     _isGetLocalChatData = false;
+    _isGroupChat = false;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -160,8 +172,11 @@
 - (void) getLocalChatData{
     
     if (_isGetLocalChatData) {
-        
-        _localChatData = [_sourceHelper getChatContentForFriend:_fmDataBase friendid:[[_friends_dic objectForKey:FRIEND_ID] integerValue]];
+        if (_isPrivateChat) {
+            _localChatData = [_sourceHelper getChatContentForFriend:_fmDataBase tableName:[_friends_dic objectForKey:FRIEND_ID]];
+        }else{
+            _localChatData = [_sourceHelper getChatContentForFriend:_fmDataBase tableName:[_friends_dic objectForKey:FRIEND_ID]];
+        }
         
         if (_localChatData.count>0) {
             
@@ -171,10 +186,10 @@
                 
                 //            [[_localChatData objectAtIndex:i] valueForKey:FRIEND_MESSAGE_TYPE];
                 
-                NSInteger status = [[[_localChatData objectAtIndex:i] valueForKey:FRIEND_MESSAGE_STATUS] integerValue];
+                NSInteger status = [[[_localChatData objectAtIndex:i] valueForKey:GL_IS_SENDER] integerValue];
                 
-                NSString *meg = [[_localChatData objectAtIndex:i] valueForKey:FRIEND_MESSAGE];
-                NSDate  *time = [CommonFunctions getDateFromString:[[_localChatData objectAtIndex:i] valueForKey:FRIEND_MESSAGE_CREATE_TIME]];
+                NSString *meg = [[_localChatData objectAtIndex:i] valueForKey:GL_MESSAGE];
+                NSDate  *time = [CommonFunctions getDateFromString:[[_localChatData objectAtIndex:i] valueForKey:GL_MESSAGE_CREATE_TIME]];
                 
                 if (status == 1) {
                     [self didSendText:meg fromSender:nil onDate:time];
@@ -217,7 +232,7 @@
 //    [self setBackgroundImage:[UIImage imageNamed:@"TableViewBackgroundImage"]];
     
     // 设置自身用户名
-//    self.messageSender = @"Jack";
+//    self.messageSender = @"";
     
     // 添加第三方接入数据
 //    NSMutableArray *shareMenuItems = [NSMutableArray array];
@@ -262,7 +277,7 @@
     _receivedDataFromSocket = [[message dataUsingEncoding:NSUTF8StringEncoding] objectFromJSONData];
     NSLog(@"-----------webSocketReceiveMsg-------:\n%@",_receivedDataFromSocket);
     
-    if (_receivedDataFromSocket !=nil && [[_receivedDataFromSocket objectForKey:@"cmd"] isEqualToString:CMD_PRIVATE_CHAT_FROM]) {
+    if (_receivedDataFromSocket !=nil && [[_receivedDataFromSocket objectForKey:@"cmd"] isEqualToString:CMD_FROM_MESSAGE]) {
         [self getMessages];
     }
 }
@@ -437,10 +452,18 @@
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeText];
 
     if (!_isGetLocalChatData) {
-        NSInteger friend_id = [[_friends_dic objectForKey:FRIEND_ID] integerValue];
-        [_webSocket send:CREATE_PRIVATE_CHAT_CMD(_appDelegate.SELF_USER_ID, friend_id, text, MSG_TYPE_TEXT)];
-        
-        [_sourceHelper updatePrivateChatTable:_fmDataBase friendDic:_friends_dic message:text isSender:true time:date type:0];
+        [_webSocket send:CREATE_PRIVATE_CHAT_CMD(_appDelegate.SELF_USER_ID, [[_friends_dic objectForKey:FRIEND_ID] integerValue], text, MSG_TYPE_TEXT)];
+        [_sourceHelper updateChatTable:_fmDataBase
+                             tableName:[_friends_dic objectForKey:FRIEND_ID]
+                              friendID:[[_friends_dic objectForKey:FRIEND_ID] integerValue]
+                               message:text
+                              isSender:true
+                                  time:date
+                                  type:0
+                               isGroup:false
+                                isShow:true
+                               groupID:0
+                             groupName:@""];
 //        [self updatePrivateChatTable:text isSender:YES createTime:date type:0];
         [_sourceHelper updateAppDelegatChatListData:_fmDataBase];
     }else{
