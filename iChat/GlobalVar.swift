@@ -84,20 +84,20 @@ func LOGIN_CMD(USER_NAME:String, USER_PASSWORD:String, USER_AVATAR:String)->Stri
 
 //*****************-- CMD GET FRIEND LIST --**************//
 
-func GET_FRIEND_LIST_CMD(SELFS_ID:Int)->String{
-    return "{\"cmd\":\"getFriendList\",\"userId\":\(SELFS_ID)}"
+func GET_FRIEND_LIST_CMD(SELFS_ID:String)->String{
+    return "{\"cmd\":\"getFriendList\",\"userId\":\"\(SELFS_ID)\"}"
 }
 
 //*****************-- CMD CREATE GROUP CHAT--**************//
 
-func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, CHANNAL_ID:Int, SELFS_ID:Int,INVITE_ID:String)->String{
-    return "{\"cmd\":\"createGroup\",\"channal\":\(CHANNAL_ID),\"name\":\"\(GROUP_NAME)\",\"from\":\(SELFS_ID),\"inviteUsers\":\"\(INVITE_ID)\"}"
+func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, CHANNAL_ID:Int, SELFS_ID:String, INVITE_ID:String, GROUP_AVATAR:String)->String{
+    return "{\"cmd\":\"createGroup\",\"channal\":\(CHANNAL_ID),\"name\":\"\(GROUP_NAME)\",\"from\":\"\(SELFS_ID)\",\"inviteUsers\":\"\(INVITE_ID)\",\"avatar\":\"\(GROUP_AVATAR)\"}"
 }
 
 //*****************-- CMD CREATE PRIVATE CHAT--**************//
 
-func CREATE_PRIVATE_CHAT_CMD(SELFS_ID:Int, TO_ID:Int,CHAT_DATA:String,TYPE:String)->String{
-    return "{\"cmd\":\"message\",\"from\":\(SELFS_ID),\"to\":\(TO_ID),\"channal\":0,\"data\":\"\(CHAT_DATA)\",\"type\":\"\(TYPE)\"}"
+func CREATE_PRIVATE_CHAT_CMD(SELFS_ID:String, TO_ID:String,CHAT_DATA:String,TYPE:String)->String{
+    return "{\"cmd\":\"message\",\"from\":\"\(SELFS_ID)\",\"to\":\"\(TO_ID)\",\"channal\":0,\"data\":\"\(CHAT_DATA)\",\"type\":\"\(TYPE)\"}"
 }
 
 
@@ -108,32 +108,32 @@ func CREATE_CHAT_TABLE(TABLE_NAME:String)->String{
     return " CREATE TABLE IF NOT EXISTS '\(TABLE_NAME)' ( 'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'server_msg_id' INTEGER , 'friend_id' INTEGER NOT NULL , 'friend_name' VARCHAR NOT NULL , 'friend_avatar' VARCHAR NOT NULL , 'message' TEXT, 'is_sender' INTEGER NOT NULL , 'create_time' DATETIME NOT NULL , 'type' INTEGER NOT NULL , 'is_group' INTEGER, 'is_show' INTEGER, 'group_id' INTEGER, 'group_name' INTEGER);"
 }
 
-func UPDATE_CHAT_TABLE(TABLE_NAME:String, CHAT_FRIEND_ID:Int, CHAT_FRIEND_NAME:String, CHAT_FRIEND_AVA:String, MESSAGE:String, IS_SENDER:Int, TIME:String, TYPE:Int, IS_GROUP:Int, IS_SHOW:Int, GROUP_ID:Int, GROUP_NAME:String)->String{
+func UPDATE_CHAT_TABLE(TABLE_NAME:String, CHAT_FRIEND_ID:String, CHAT_FRIEND_NAME:String, CHAT_FRIEND_AVA:String, MESSAGE:String, IS_SENDER:Int, TIME:String, TYPE:Int, IS_GROUP:Int, IS_SHOW:Int, GROUP_ID:Int, GROUP_NAME:String)->String{
     return " INSERT INTO '\(TABLE_NAME)' ( 'friend_id', 'friend_name', 'friend_avatar', 'message', 'is_sender', 'create_time', 'type', 'is_group', 'is_show', 'group_id', 'group_name') VALUES ( '\(CHAT_FRIEND_ID)', '\(CHAT_FRIEND_NAME)', '\(CHAT_FRIEND_AVA)', '\(MESSAGE)', '\(IS_SENDER)', '\(TIME)', '\(TYPE)', '\(IS_GROUP)', '\(IS_SHOW)', '\(GROUP_ID)', '\(GROUP_NAME)');"
 }
 
 func UPDATE_CHAT_BADGE(TABLE_NAME:String, GROUP_ID:Int, GROUP_NAME:String, IS_GROUP:Int, IS_SHOW:Int)->String{
-    return " INSERT INTO 'chat_badge' ( 'table_name', 'group_id', 'group_name', 'is_group', 'is_show') VALUES ('\(TABLE_NAME)', '\(GROUP_ID)', '\(GROUP_NAME)', '\(IS_GROUP)', '\(IS_SHOW)');"
+    return " INSERT INTO chat_badge ( 'table_name', 'group_id', 'group_name', 'is_group', 'is_show') VALUES ( '\(TABLE_NAME)', '\(GROUP_ID)', '\(GROUP_NAME)', '\(IS_GROUP)', '\(IS_SHOW)');"
 }
 
 func UPDATE_CHAT_BADGE_FOR_BADGE(TABLE_NAME:String, BADGE:Int)->String{
-    return " update chat_badge set badge = \(BADGE) where table_name = \(TABLE_NAME);"
+    return " update chat_badge set badge = \(BADGE) where table_name = \'\(TABLE_NAME)\';"
 }
 
 func SELECT_CHAT_LIST_FOR_BADGE(TABLE_NAME:String)->String{
-    return " SELECT badge from chat_badge WHERE table_name = \(TABLE_NAME);"
+    return " SELECT badge from chat_badge WHERE table_name = \'\(TABLE_NAME)\';"
 }
 
 func FIND_CHAT_TABLE(TABLE_NAME:String)->String{
-    return " select friend_id, friend_name, friend_avatar, message, is_sender, create_time, type, chat_badge.is_group, chat_badge.is_show, chat_badge.group_id, chat_badge.group_name, badge, chat_badge.table_name from '\(TABLE_NAME)' join chat_badge on chat_badge.table_name = '\(TABLE_NAME)' where chat_badge.is_show =1 and '\(TABLE_NAME)'.is_show =1 order by create_time desc limit 1;"
+    return " select friend_id, friend_name, friend_avatar, message, is_sender, create_time, type, chat_badge.is_group, chat_badge.is_show, chat_badge.group_id, chat_badge.group_name, badge, chat_badge.table_name from \'\(TABLE_NAME)\' join chat_badge on chat_badge.table_name = \'\(TABLE_NAME)\' where chat_badge.is_show =1 and \'\(TABLE_NAME)\'.is_show =1 order by create_time desc limit 1;"
 }
 
-func UPDATE_FRIENDS_LIST_TABLE(TABLE_NAME:String, INSERT_ID:Int, INSERT_NAME:String, INSERT_AVATAR:String)->String{
+func UPDATE_FRIENDS_LIST_TABLE(TABLE_NAME:String, INSERT_ID:String, INSERT_NAME:String, INSERT_AVATAR:String)->String{
     return " insert into '\(TABLE_NAME)' ( 'user_id', 'user_name', 'avatar') values ( '\(INSERT_ID)', '\(INSERT_NAME)', '\(INSERT_AVATAR)');"
 }
 
 func CLEAR_FRIENDS_LIST_TABLE(TABLE_NAME:String)->String{
-    return " DELETE FROM \(TABLE_NAME) where 1=1;"
+    return " DELETE FROM '\(TABLE_NAME)';"
 }
 
 func RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(TABLE_NAME:String)->String{
@@ -144,6 +144,10 @@ func GET_FRIEDNS(TABLE_NAME:String)->String{
     return " select user_id, user_name, avatar from \(TABLE_NAME);"
 }
 
-func GET_FRIEDNS_BY_ID(TABLE_NAME:String, SEARCH_ID:Int)->String{
-    return " select user_name, avatar from \(TABLE_NAME) where user_id = \(SEARCH_ID);"
+func GET_FRIEDNS_BY_ID(TABLE_NAME:String, SEARCH_ID:String)->String{
+    return " select user_name, avatar from \(TABLE_NAME) where user_id = \'\(SEARCH_ID)\';"
+}
+
+func GET_GROUP_NAME_BY_GROUP_ID(TABLE_NAME:String, SEARCH_ID:Int)->String{
+    return " select group_name from \'\(TABLE_NAME)\' where group_id = \(SEARCH_ID);"
 }

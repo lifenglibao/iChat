@@ -46,7 +46,7 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         if (dic.objectForKey("cmd")!.isEqualToString("getFriendList") && dic.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
             dataSource.addObjectsFromArray(dic.valueForKey("data") as! NSMutableArray as [AnyObject])
             self.tableView.reloadData()
-            sourceHelper.updateFriendsTable(database, dataSource: dataSource)
+            sourceHelper.updateFriendsTable(dataSource)
         }else{
             
         }
@@ -55,14 +55,14 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        appDelegate.webSocket.delegate = self
+        CommonFunctions.showGlobalProgressHUDWithTitle("Loading...")
+        socketHelper.socketCMDStatus(CMD_GET_FRIENDS, object: appDelegate.SELF_USER_ID)
         commenBase.customNavBarItem(ContactsList.self, tabBar: self.tabBarController!, tar: self, ac: nil)
     }
     
     override func viewDidLoad () {
         super.viewDidLoad()
-        appDelegate.webSocket.delegate = self
-        CommonFunctions.showGlobalProgressHUDWithTitle("Loading...")
-        socketHelper.socketCMDStatus(CMD_GET_FRIENDS, object: appDelegate.SELF_USER_ID)
         database = FMDatabase.init(path: appDelegate.getdestinationPath())
 
         self.searchBar = UISearchBar.init(frame:CGRectMake(0, 0, self.view.frame.size.width, 44))

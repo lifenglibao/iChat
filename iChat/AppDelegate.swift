@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var webSocket: SRWebSocket!
     var IS_LOGIN = Bool()
-    var SELF_USER_ID : Int = 0
+    var SELF_USER_ID : String = ""
     var SELF_USER_NAME : String = ""
     var SELF_USER_AVATAR : String = ""
     var CHAT_LIST_DATA = NSMutableArray()

@@ -52,7 +52,7 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
         if (dic.objectForKey("cmd") as! String == CMD_LOGIN && dic.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_LOGIN) {
             // login successfully
             self.appDelegate.IS_LOGIN = true
-            self.appDelegate.SELF_USER_ID  = dic.objectForKey(USER_ID)!.integerValue
+            self.appDelegate.SELF_USER_ID  = dic.objectForKey(USER_ID) as! String
             self.appDelegate.SELF_USER_NAME  = dic.objectForKey(NAME) as! String
             self.appDelegate.SELF_USER_AVATAR  = dic.objectForKey(AVATAR) as! String
             self.updateAccountTable(dic)

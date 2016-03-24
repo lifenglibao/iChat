@@ -13,6 +13,7 @@ import UIKit
 class SourceHelper: NSObject{
 
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var database    = FMDatabase.init(path: (UIApplication.sharedApplication().delegate as! AppDelegate).getdestinationPath())
 
     
     func getProfileConfigureArray()->NSMutableArray {
@@ -61,7 +62,7 @@ class SourceHelper: NSObject{
         }
     }
     
-    func checkTableIsExists (database:FMDatabase, tableName:String)->Bool {
+    func checkTableIsExists (tableName:String)->Bool {
 
         var totalCount = Int32()
         if database.open(){
@@ -92,7 +93,7 @@ class SourceHelper: NSObject{
 
     }
     
-    func updateAppDelegatChatListData (database:FMDatabase) {
+    func updateAppDelegatChatListData () {
         
         if database.open(){
             do {
@@ -104,8 +105,9 @@ class SourceHelper: NSObject{
                     array.addObject(NSDictionary(object:table_name, forKey: GL_TABLE_NAME))
                 }
                 appDelegate.CHAT_LIST_DATA.removeAllObjects()
-            
+
                 for (var i=0; i<array.count; i++){
+
                     let sql = FIND_CHAT_TABLE(array.objectAtIndex(i).valueForKey(GL_TABLE_NAME) as! String)
                     let s   = try database.executeQuery(sql, values: nil)
                     
@@ -166,7 +168,7 @@ class SourceHelper: NSObject{
 
     }
     
-    func getChatContentForFriend (database:FMDatabase, tableName:String)->NSMutableArray {
+    func getChatContentForFriend (tableName:String)->NSMutableArray {
         
         let array = NSMutableArray()
 
@@ -197,7 +199,7 @@ class SourceHelper: NSObject{
         return array
     }
     
-    func updateChatTable (database:FMDatabase, tableName:NSString, friendID:Int, message:NSString, isSender:Bool, time:NSDate, type:Int, isGroup:Bool, isShow:Bool, groupID:Int, groupName:String) {
+    func updateChatTable (tableName:NSString, friendID:NSString, message:NSString, isSender:Bool, time:NSDate, type:Int, isGroup:Bool, isShow:Bool, groupID:Int, groupName:String) {
         if database.open() {
             do {
                 var is_sender = Int()
@@ -210,44 +212,36 @@ class SourceHelper: NSObject{
                 
                 let createTime = CommonFunctions.getStringFromDate(time)
                 let sql        = CREATE_CHAT_TABLE(tableName as String)
+                let friendData = getFriendsByID(friendID as String)
+                let name       = friendData.count > 0 ? friendData[0].objectForKey(FRIEND_NAME) as! String : ""
+                let avatar     = friendData.count > 0 ? friendData[0].objectForKey(FRIEND_AVATAR) as! String : ""
 
-                if friendID > 0{
-                    let friendData = getFriendsByID(database, friend_id: friendID)
-                    let sql2       = UPDATE_CHAT_TABLE(tableName as String,
-                        CHAT_FRIEND_ID: friendID,
-                        CHAT_FRIEND_NAME: friendData[0].objectForKey(FRIEND_NAME) as! String,
-                        CHAT_FRIEND_AVA: friendData[0].objectForKey(FRIEND_AVATAR) as! String,
-                        MESSAGE: message as String,
-                        IS_SENDER: is_sender,
-                        TIME: createTime,
-                        TYPE: type,
-                        IS_GROUP: is_group,
-                        IS_SHOW: is_show,
-                        GROUP_ID: groupID,
-                        GROUP_NAME: groupName)
+                let sql2       = UPDATE_CHAT_TABLE(tableName as String,
+                    CHAT_FRIEND_ID: friendID as String,
+                    CHAT_FRIEND_NAME: name,
+                    CHAT_FRIEND_AVA: avatar,
+                    MESSAGE: message as String,
+                    IS_SENDER: is_sender,
+                    TIME: createTime,
+                    TYPE: type,
+                    IS_GROUP: is_group,
+                    IS_SHOW: is_show,
+                    GROUP_ID: groupID,
+                    GROUP_NAME: groupName)
+                
+                if (checkTableIsExists(tableName as String)){
+                    try database.executeUpdate(sql2, values: nil)
                     
-                    if (checkTableIsExists(database, tableName: tableName as String)){
-                        try database.executeUpdate(sql2, values: nil)
-                        
-                    }else{
-                        try database.executeUpdate(sql, values: nil)
-                        try database.executeUpdate(sql2, values: nil)
-                    }
-                    
-                    if (!isAlreadyOnChatListTable(database, tableName: tableName as String)) {
-                        let sql3   = UPDATE_CHAT_BADGE(tableName as String, GROUP_ID: groupID, GROUP_NAME: groupName, IS_GROUP: is_group, IS_SHOW: is_show)
-                        try database.executeUpdate(sql3, values: nil)
-                    }
-
                 }else{
-                    
                     try database.executeUpdate(sql, values: nil)
-                    
-                    if (!isAlreadyOnChatListTable(database, tableName: tableName as String)) {
-                        let sql3   = UPDATE_CHAT_BADGE(tableName as String, GROUP_ID: groupID, GROUP_NAME: groupName, IS_GROUP: is_group, IS_SHOW: is_show)
-                        try database.executeUpdate(sql3, values: nil)
-                    }
+                    try database.executeUpdate(sql2, values: nil)
                 }
+                
+                if (!isAlreadyOnChatListTable(tableName as String)) {
+                    let sql3   = UPDATE_CHAT_BADGE(tableName as String, GROUP_ID: groupID, GROUP_NAME: groupName, IS_GROUP: is_group, IS_SHOW: is_show)
+                    try database.executeUpdate(sql3, values: nil)
+                }
+
                 
             } catch let error as NSError {
                 print(error.description)
@@ -258,7 +252,7 @@ class SourceHelper: NSObject{
     
     }
     
-    func updateChatBadgeNumber (database:FMDatabase, tableName:String, badge:Int) {
+    func updateChatBadgeNumber (tableName:String, badge:Int) {
         if database.open() {
             do {
 
@@ -273,7 +267,7 @@ class SourceHelper: NSObject{
         }
     }
     
-    func getBadgeNumber (database:FMDatabase, tableName:String)->String {
+    func getBadgeNumber (tableName:String)->String {
         
         var badge = String()
 
@@ -297,7 +291,7 @@ class SourceHelper: NSObject{
         print("-----now badge is ----\n\(badge)")
         return badge
     }
-    func isAlreadyOnChatListTable (database:FMDatabase, tableName:String)->Bool {
+    func isAlreadyOnChatListTable (tableName:String)->Bool {
         if database.open() {
             do {
                 
@@ -329,7 +323,7 @@ class SourceHelper: NSObject{
         return false
     }
     
-    func updateFriendsTable(database:FMDatabase,dataSource:NSMutableArray) {
+    func updateFriendsTable(dataSource:NSMutableArray) {
         
         let tableName = "friends"
         
@@ -343,10 +337,9 @@ class SourceHelper: NSObject{
                     
                     let name = isNotNull(dataSource[i].valueForKey("username")!) ? dataSource[i].valueForKey("username") as! String : ""
                     let avatar = isNotNull(dataSource[i].valueForKey("avatar")!) ? dataSource[i].valueForKey("avatar") as! String : ""
-
                     try database.executeUpdate(UPDATE_FRIENDS_LIST_TABLE(
                         tableName,
-                        INSERT_ID: dataSource[i].valueForKey("userId")!.integerValue,
+                        INSERT_ID: dataSource[i].valueForKey("userId") as! String,
                         INSERT_NAME: name,
                         INSERT_AVATAR: avatar),
                         values: nil)
@@ -362,7 +355,7 @@ class SourceHelper: NSObject{
         }
     }
 
-    func getFriends(database:FMDatabase)->NSMutableArray {
+    func getFriends()->NSMutableArray {
         
         let tableName = "friends"
         let array = NSMutableArray()
@@ -392,7 +385,7 @@ class SourceHelper: NSObject{
         return array
     }
     
-    func getFriendsByID(database:FMDatabase, friend_id:Int)->NSMutableArray {
+    func getFriendsByID(friend_id:String)->NSMutableArray {
         
         let tableName = "friends"
         let array = NSMutableArray()
@@ -420,5 +413,28 @@ class SourceHelper: NSObject{
             print("database can not open!!!")
         }
         return array
+    }
+    
+    func getGroupNameByGroupID(groupID:Int)->String {
+        
+        let tableName = "chat_badge"
+        var str = String()
+        
+        if database.open(){
+            do {
+                let s = try database.executeQuery(GET_GROUP_NAME_BY_GROUP_ID(tableName, SEARCH_ID: groupID), values: nil)
+                
+                while s.next(){
+                    str = s.stringForColumn(GL_GROUP_NAME)
+                }
+                database.close()
+            } catch let error as NSError {
+                database.close()
+                print("failed: \(error.localizedDescription)")
+            }
+        }else{
+            print("database can not open!!!")
+        }
+        return str
     }
 }

@@ -54,9 +54,8 @@
         
         if (_friends_dic!=nil || _receivedDataFromSocket!=nil) {
             
-            [_sourceHelper updateChatTable:_fmDataBase
-                                 tableName:[_friends_dic objectForKey:FRIEND_ID]
-                                  friendID:[[_friends_dic objectForKey:FRIEND_ID] integerValue]
+            [_sourceHelper updateChatTable:[_friends_dic objectForKey:FRIEND_ID]
+                                  friendID:[_friends_dic objectForKey:FRIEND_ID]
                                    message:text
                                   isSender:false
                                       time:date
@@ -66,7 +65,7 @@
                                    groupID:0
                                  groupName:@""];
             
-            [_sourceHelper updateAppDelegatChatListData:_fmDataBase];
+            [_sourceHelper updateAppDelegatChatListData];
         }
         
     }else{
@@ -173,9 +172,9 @@
     
     if (_isGetLocalChatData) {
         if (_isPrivateChat) {
-            _localChatData = [_sourceHelper getChatContentForFriend:_fmDataBase tableName:[_friends_dic objectForKey:FRIEND_ID]];
+            _localChatData = [_sourceHelper getChatContentForFriend:[_friends_dic objectForKey:FRIEND_ID]];
         }else{
-            _localChatData = [_sourceHelper getChatContentForFriend:_fmDataBase tableName:[_friends_dic objectForKey:FRIEND_ID]];
+            _localChatData = [_sourceHelper getChatContentForFriend:[_friends_dic objectForKey:FRIEND_ID]];
         }
         
         if (_localChatData.count>0) {
@@ -452,10 +451,9 @@
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeText];
 
     if (!_isGetLocalChatData) {
-        [_webSocket send:CREATE_PRIVATE_CHAT_CMD(_appDelegate.SELF_USER_ID, [[_friends_dic objectForKey:FRIEND_ID] integerValue], text, MSG_TYPE_TEXT)];
-        [_sourceHelper updateChatTable:_fmDataBase
-                             tableName:[_friends_dic objectForKey:FRIEND_ID]
-                              friendID:[[_friends_dic objectForKey:FRIEND_ID] integerValue]
+        [_webSocket send:CREATE_PRIVATE_CHAT_CMD(_appDelegate.SELF_USER_ID, [_friends_dic objectForKey:FRIEND_ID], text, MSG_TYPE_TEXT)];
+        [_sourceHelper updateChatTable:[_friends_dic objectForKey:FRIEND_ID]
+                              friendID:[_friends_dic objectForKey:FRIEND_ID]
                                message:text
                               isSender:true
                                   time:date
@@ -465,7 +463,7 @@
                                groupID:0
                              groupName:@""];
 //        [self updatePrivateChatTable:text isSender:YES createTime:date type:0];
-        [_sourceHelper updateAppDelegatChatListData:_fmDataBase];
+        [_sourceHelper updateAppDelegatChatListData];
     }else{
 
     }

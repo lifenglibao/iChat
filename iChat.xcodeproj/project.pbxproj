@@ -192,7 +192,7 @@
 		0D2095F11C9A6287006D59FF /* UIView+Convenience.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D2095E61C9A6287006D59FF /* UIView+Convenience.m */; };
 		0D43439B1C509CB50012ECB0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D43439A1C509CB50012ECB0 /* CoreGraphics.framework */; };
 		0D43439F1C51E1A80012ECB0 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D43439E1C51E1A80012ECB0 /* LoginViewController.swift */; };
-		0D8402F51C9FD73C00A80B9C /* iChat.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 0D8402F41C9FD73C00A80B9C /* iChat.sqlite */; };
+		0D8402F71CA1285400A80B9C /* iChat.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 0D8402F61CA1285400A80B9C /* iChat.sqlite */; };
 		0DC1AA991C3F59EC006D89E0 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC1AA981C3F59EC006D89E0 /* SRWebSocket.m */; };
 		0DC1AA9B1C3F5AF6006D89E0 /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DC1AA9A1C3F5AF6006D89E0 /* libicucore.tbd */; };
 		0DC1AA9D1C3F5AFE006D89E0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DC1AA9C1C3F5AFE006D89E0 /* CFNetwork.framework */; };
@@ -505,7 +505,7 @@
 		0D43439A1C509CB50012ECB0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		0D43439C1C51C82B0012ECB0 /* Constans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Constans.h; path = ../Constans.h; sourceTree = "<group>"; };
 		0D43439E1C51E1A80012ECB0 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		0D8402F41C9FD73C00A80B9C /* iChat.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = iChat.sqlite; sourceTree = "<group>"; };
+		0D8402F61CA1285400A80B9C /* iChat.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = iChat.sqlite; sourceTree = "<group>"; };
 		0DC1AA961C3F59EC006D89E0 /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
 		0DC1AA971C3F59EC006D89E0 /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
 		0DC1AA981C3F59EC006D89E0 /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
@@ -573,7 +573,7 @@
 				0D037FDF1C3B567A0081C83C /* Assets.xcassets */,
 				0D037FE11C3B567A0081C83C /* LaunchScreen.storyboard */,
 				0D037FE41C3B567A0081C83C /* Info.plist */,
-				0D8402F41C9FD73C00A80B9C /* iChat.sqlite */,
+				0D8402F61CA1285400A80B9C /* iChat.sqlite */,
 			);
 			path = iChat;
 			sourceTree = "<group>";
@@ -1459,7 +1459,7 @@
 				0D03806B1C3CE8C90081C83C /* MoreMyBankCard@2x.png in Resources */,
 				0D1476D51C9A94BE005C9BA7 /* CellBlueSelected@2x.png in Resources */,
 				0D0383141C3E36C00081C83C /* RecordingSignal008@2x.png in Resources */,
-				0D8402F51C9FD73C00A80B9C /* iChat.sqlite in Resources */,
+				0D8402F71CA1285400A80B9C /* iChat.sqlite in Resources */,
 				0D2095EA1C9A6287006D59FF /* MultiSelectedPanel.xib in Resources */,
 				0D0382F71C3E36C00081C83C /* avator@2x.png in Resources */,
 				0D0382FB1C3E36C00081C83C /* Fav_Cell_Loc@2x.png in Resources */,

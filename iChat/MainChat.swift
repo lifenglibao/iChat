@@ -16,12 +16,10 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
     var popMenu  = XHPopMenu?()
     var database = FMDatabase()
     var receivedDataFromSocket = NSDictionary()
-    var group_friendDic = NSDictionary()
+    var group_friendDic = NSMutableArray()
 
     var badgeNumber:NSInteger = 0
     
-    var friendDataSource  = NSMutableArray()
-
     
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
 
@@ -40,25 +38,29 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
                 
                 // get msg from other side
                 
-                let table_name  = self.receivedDataFromSocket.objectForKey("from")!.stringValue
-                let msg         = self.receivedDataFromSocket.objectForKey("data") as! NSString
                 let date        = CommonFunctions.getDateFromStringWithGMT(self.receivedDataFromSocket.objectForKey("created_at") as! String)
-                
+                let channal_id  = self.receivedDataFromSocket.objectForKey("channal")!.integerValue
+                let msg         = self.receivedDataFromSocket.objectForKey("data") as! NSString
+                let friend_id   = self.receivedDataFromSocket.objectForKey("from") as! String
+                let is_group    = channal_id > 0 ? true : false
+                let group_id    = channal_id > 0 ? channal_id : 0
+                let group_name  = channal_id > 0 ? sourceHelper.getGroupNameByGroupID(group_id) : ""
+                let table_name  = channal_id > 0 ? "group"+(self.receivedDataFromSocket.objectForKey("channal") as! String) : self.receivedDataFromSocket.objectForKey("from") as! String
+
                 sourceHelper.updateChatTable(
-                                 self.database,
-                            tableName: table_name,
-                             friendID: self.receivedDataFromSocket.objectForKey("from")!.integerValue,
-                              message: msg,
-                             isSender: false,
-                                 time: date,
-                                 type: 0,
-                              isGroup: false,
-                               isShow: true,
-                              groupID: 0,
-                            groupName: "")
+                    table_name,
+                    friendID: friend_id,
+                    message: msg,
+                    isSender: false,
+                    time: date,
+                    type: 0,
+                    isGroup: is_group,
+                    isShow: true,
+                    groupID: group_id,
+                    groupName: group_name)
                 
                 self.calculateBadgeNumber(table_name)
-                sourceHelper.updateAppDelegatChatListData(self.database)
+                sourceHelper.updateAppDelegatChatListData()
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
@@ -70,8 +72,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
             }else if (self.receivedDataFromSocket.objectForKey("cmd") as! String == CMD_GET_FRIENDS && self.receivedDataFromSocket.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
                 
                 // get friend list
-                self.friendDataSource.addObjectsFromArray(self.receivedDataFromSocket.valueForKey("data") as! NSMutableArray as [AnyObject])
-                sourceHelper.updateFriendsTable(self.database, dataSource: self.friendDataSource)
+                sourceHelper.updateFriendsTable(self.receivedDataFromSocket.valueForKey("data") as! NSMutableArray)
                 
             }else if (self.receivedDataFromSocket.objectForKey("cmd") as! String == CMD_CREATE_GROUP_CHAT && self.receivedDataFromSocket.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
                 
@@ -82,13 +83,12 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
                 let table_name  = "group" + ((self.receivedDataFromSocket.objectForKey("data")?.objectForKey("id"))! as! String)
                 let date        = CommonFunctions.getDateFromStringWithGMT(self.receivedDataFromSocket.objectForKey("data")?.valueForKey("created_at") as! String)
 
-                self.group_friendDic = self.receivedDataFromSocket.objectForKey("data")!.valueForKey("inviteUsers") as! NSDictionary
+                self.group_friendDic = self.receivedDataFromSocket.objectForKey("data")!.valueForKey("inviteUsers") as! NSMutableArray
                 print(self.group_friendDic)
                 
                 sourceHelper.updateChatTable(
-                                 self.database,
-                            tableName: table_name,
-                             friendID: 0,
+                            table_name,
+                             friendID: "",
                               message: "",
                              isSender: false,
                                  time: date,
@@ -98,20 +98,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
                               groupID: group_id!,
                             groupName: group_name)
                 
-                sourceHelper.updateAppDelegatChatListData(self.database)
-
-                //            badgeNumber = 0
-//                sourceHelper.updateChatListBadgeNumber(database, friendID: self.dataSource[indexPath.row].valueForKey(FRIEND_ID) as! Int, badge: 0)
-                //
-                //            let mesChatVC = XHDemoWeChatMessageTableViewController.init()
-                //            let friend_id = self.dataSource[indexPath.row].valueForKey(FRIEND_ID)
-                //            let friend_name = self.dataSource[indexPath.row].valueForKey(FRIEND_NAME)
-                //            let friend_avatar = self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR)
-                //            mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
-                //            mesChatVC.isGetLocalChatData = true
-                //            self.tabBarController?.navigationController?.pushViewController(mesChatVC, animated: true)
-                
-                
+                sourceHelper.updateAppDelegatChatListData()
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
@@ -135,7 +122,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         
         badgeNumber = badgeNumber+1
         print(badgeNumber)
-        sourceHelper.updateChatBadgeNumber(database, tableName: tableName, badge:badgeNumber)
+        sourceHelper.updateChatBadgeNumber(tableName, badge:badgeNumber)
     }
 
     
@@ -163,7 +150,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         super.viewDidLoad()
         
         database = FMDatabase.init(path: appDelegate.getdestinationPath())
-        sourceHelper.updateAppDelegatChatListData(database)
+        sourceHelper.updateAppDelegatChatListData()
         self.searchBar = UISearchBar.init(frame:CGRectMake(0, 0, self.view.frame.size.width, 44))
         self.searchBar.sizeToFit()
         self.searchBar.translucent = true
@@ -231,7 +218,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         
         badgeNumber = 0
 
-        sourceHelper.updateChatBadgeNumber(database, tableName: self.dataSource[indexPath.row].valueForKey(GL_TABLE_NAME) as! String, badge: 0)
+        sourceHelper.updateChatBadgeNumber(self.dataSource[indexPath.row].valueForKey(GL_TABLE_NAME) as! String, badge: 0)
 
         let mesChatVC = XHDemoWeChatMessageTableViewController.init()
         let friend_id = self.dataSource[indexPath.row].valueForKey(FRIEND_ID)
@@ -239,6 +226,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         let friend_avatar = self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR)
         if  (sourceHelper.isNotNull(dataSource[indexPath.row].valueForKey(GL_GROUP_NAME)!)) {
             mesChatVC.isGroupChat = true
+            mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
         }else{
             mesChatVC.isPrivateChat = true
             mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
@@ -254,7 +242,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
     
     func addContactForGroup (){
         
-        let friendArray = sourceHelper.getFriends(database)
+        let friendArray = sourceHelper.getFriends()
         let items = NSMutableArray()
         
         for var i = 0; i<friendArray.count; i++ {
