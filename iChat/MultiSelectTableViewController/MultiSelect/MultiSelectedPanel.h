@@ -7,14 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-
 @class MultiSelectedPanel;
 @class MultiSelectItem;
 @protocol MultiSelectedPanelDelegate <NSObject>
 
 //本身想对此数组进行KVO的，想想还是算了。工作量不值得
 - (void)willDeleteRowWithItem:(MultiSelectItem*)item withMultiSelectedPanel:(MultiSelectedPanel*)multiSelectedPanel;
-- (void)didConfirmWithMultiSelectedPanel:(MultiSelectedPanel*)multiSelectedPanel;
+- (void)didConfirmWithMultiSelectedPanel:(MultiSelectedPanel*)multiSelectedPanel withGroupName:(NSString*)groupName;
 
 @end
 

@@ -58,6 +58,8 @@ let CMD_GET_FRIENDS         = "getFriendList"
 let CMD_CREATE_GROUP_CHAT   = "createGroup"
 let CMD_MESSAGE             = "message"
 let CMD_FROM_MESSAGE        = "fromMsg"
+let CMD_GET_OFFLINE_MESSAGE = "getOfflineMessage"
+let CMD_DID_GET_OFFLINE_MESSAGE = "offlineMessage"
 
 
 //*****************-- GET VIEW CONTROLLER FROM STORY BOARD --**************//
@@ -94,12 +96,17 @@ func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, CHANNAL_ID:Int, SELFS_ID:String, I
     return "{\"cmd\":\"createGroup\",\"channal\":\(CHANNAL_ID),\"name\":\"\(GROUP_NAME)\",\"from\":\"\(SELFS_ID)\",\"inviteUsers\":\"\(INVITE_ID)\",\"avatar\":\"\(GROUP_AVATAR)\"}"
 }
 
-//*****************-- CMD CREATE PRIVATE CHAT--**************//
+//*****************-- CMD SEND MESSAGE--**************//
 
 func SEND_MSG_CHAT_CMD(SELFS_ID:String, TO_ID:String, CHANNAL:String, CHAT_DATA:String,TYPE:String)->String{
     return "{\"cmd\":\"message\",\"from\":\"\(SELFS_ID)\",\"to\":\"\(TO_ID)\",\"channal\":\"\(CHANNAL)\",\"data\":\"\(CHAT_DATA)\",\"type\":\"\(TYPE)\"}"
 }
 
+//*****************-- CMD GET OFFLINE MESSAGE--**************//
+
+func GET_OFFLINE_MESSAGE(SELFS_ID:String, LAST_MSG_ID:String)->String{
+    return "{\"cmd\":\"getOfflineMessage\",\"userId\":\"\(SELFS_ID)\",\"last_message_id\":\"\(LAST_MSG_ID)\",\"limit\":10000,\"page\":1}"
+}
 
 
 //****************-- DATA BASE --******************//
@@ -133,12 +140,12 @@ func UPDATE_FRIENDS_LIST_TABLE(TABLE_NAME:String, INSERT_ID:String, INSERT_NAME:
 }
 
 func CLEAR_FRIENDS_LIST_TABLE(TABLE_NAME:String)->String{
-    return " DELETE FROM '\(TABLE_NAME)';"
+    return " DELETE FROM \(TABLE_NAME);"
 }
 
-func RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(TABLE_NAME:String)->String{
-    return " UPDATE sqlite_sequence set seq = 0 where name = \(TABLE_NAME);"
-}
+//func RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(TABLE_NAME:String)->String{
+//    return " UPDATE sqlite_sequence set seq = 0 where name = \(TABLE_NAME);"
+//}
 
 func GET_FRIEDNS(TABLE_NAME:String)->String{
     return " select user_id, user_name, avatar from \(TABLE_NAME);"

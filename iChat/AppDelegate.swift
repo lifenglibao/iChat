@@ -20,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var SELF_USER_AVATAR : String = ""
     var CHAT_LIST_DATA = NSMutableArray()
     var GROUP_FRIEND_DATA = NSMutableArray()
+    var GROUP_NAME_STRING : String = ""
 
     func openWebSocket () {
         self.webSocket = SRWebSocket.init(URL: NSURL.init(string: API_URL))
@@ -30,6 +31,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Override point for customization after application launch.
 
+        openWebSocket()
+        chkAndCreateDirectory()
         let vc = GET_VIEW_CONTROLLER("ViewController")
         let navController = UINavigationController.init(rootViewController: vc)
         navController.navigationBar.barTintColor = RGBA_ALPHA(0.071, G: 0.060, B: 0.086, A: 1.0)
@@ -38,8 +41,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        UINavigationBar.appearance().tintColor    = UIColor.whiteColor()
         self.window?.rootViewController = navController
         self.window?.makeKeyAndVisible()
-        openWebSocket()
-        chkAndCreateDirectory()
         return true
     }
 

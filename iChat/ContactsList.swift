@@ -44,9 +44,10 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         print("webSocket has received msg!!!:-------\n",dic)
         
         if (dic.objectForKey("cmd")!.isEqualToString("getFriendList") && dic.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
+            dataSource.removeAllObjects()
             dataSource.addObjectsFromArray(dic.valueForKey("data") as! NSMutableArray as [AnyObject])
-            self.tableView.reloadData()
             sourceHelper.updateFriendsTable(dataSource)
+            self.tableView.reloadData()
         }else{
             
         }

@@ -71,7 +71,11 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
             }else if (self.receivedDataFromSocket.objectForKey("cmd") as! String == CMD_GET_FRIENDS && self.receivedDataFromSocket.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
                 
                 // get friend list
-                sourceHelper.updateFriendsTable(self.receivedDataFromSocket.valueForKey("data") as! NSMutableArray)
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    sourceHelper.updateFriendsTable(self.receivedDataFromSocket.valueForKey("data") as! NSMutableArray)
+
+                })
                 
             }else if (self.receivedDataFromSocket.objectForKey("cmd") as! String == CMD_CREATE_GROUP_CHAT && self.receivedDataFromSocket.objectForKey("status_code")!.integerValue == STATUS_CODE_SUCCESS_FRIEND) {
                 
@@ -102,6 +106,43 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
                     
                     self.tableView.reloadData()
                 })
+            }else if (self.receivedDataFromSocket.objectForKey("cmd") as! String == CMD_DID_GET_OFFLINE_MESSAGE) {
+                let msgData = self.receivedDataFromSocket.objectForKey("data")
+                
+                for var i = 0; i < msgData?.count; i++ {
+                    
+                    let date        = CommonFunctions.getDateFromStringWithGMT(msgData![i].objectForKey("created_at") as! String)
+                    let channal_id  = msgData![i].objectForKey("channal")!.integerValue
+                    let msg         = msgData![i].objectForKey("data") as! NSString
+                    let friend_id   = msgData![i].objectForKey("from") as! String
+                    let is_group    = channal_id > 0 ? true : false
+                    let group_id    = channal_id > 0 ? channal_id : 0
+                    let group_name  = channal_id > 0 ? msgData![i].objectForKey("channalName") as! String : ""
+                    let table_name  = channal_id > 0 ? "group"+(msgData![i].objectForKey("channal") as! String) : msgData![i].objectForKey("from") as! String
+                    
+                    sourceHelper.updateChatTable(
+                        table_name,
+                        friendID: friend_id,
+                        message: msg,
+                        isSender: false,
+                        time: date,
+                        type: 0,
+                        isGroup: is_group,
+                        isShow: true,
+                        groupID: group_id,
+                        groupName: group_name)
+                    
+                    self.calculateBadgeNumber(table_name)
+                }
+                
+                sourceHelper.updateAppDelegatChatListData()
+
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    self.dataSource = self.appDelegate.CHAT_LIST_DATA
+                    
+                    self.tableView.reloadData()
+                })
             }
         }
     }
@@ -116,7 +157,9 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
     
     func calculateBadgeNumber(tableName:String) {
         
-        badgeNumber = badgeNumber+1
+        badgeNumber = 0
+        let tmp:NSInteger = NSInteger(sourceHelper.getBadgeNumber(tableName))!
+        badgeNumber = tmp+1
         print(badgeNumber)
         sourceHelper.updateChatBadgeNumber(tableName, badge:badgeNumber)
     }
@@ -129,6 +172,7 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         self.popMenu = popMenuHelper.initPopMenus()
         commenBase.customNavBarItem(MainChat.self, tabBar: self.tabBarController!, tar: self, ac: "showCustomMenuView:")
         appDelegate.webSocket.delegate = self
+        socketHelper.socketCMDStatus(CMD_GET_OFFLINE_MESSAGE, object: "")
 
         if appDelegate.GROUP_FRIEND_DATA.count != 0{
             
@@ -174,19 +218,22 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         if dataSource.count != 0 {
             var show_name = String()
             if  (sourceHelper.isNotNull(dataSource[indexPath.row].valueForKey(GL_GROUP_NAME)!)) {
+                
                 show_name = dataSource[indexPath.row].valueForKey(GL_GROUP_NAME) as! String
+                cell.avatarImg.image = UIImage(named:"placeholderImage")
+                
             }else{
                 show_name = dataSource[indexPath.row].valueForKey(FRIEND_NAME) as! String
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    if (sourceHelper.isNotNull(self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR)!)) {
+                        cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR) as! String), placeholderImage: UIImage(named: "placeholderImage"))
+                    }else{
+                        cell.avatarImg.image = UIImage(named:"placeholderImage")
+                    }
+                })
             }
-            
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                if (sourceHelper.isNotNull(self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR)!)) {
-                    cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR) as! String), placeholderImage: UIImage(named: "placeholderImage"))
-                }else{
-                    cell.avatarImg.image = UIImage(named:"placeholderImage")
-                }
-            })
-            
+        
             cell.userName?.text = show_name
             cell.msgContent?.text = self.dataSource[indexPath.row].valueForKey(GL_MESSAGE) as? String
             cell.msgReceivedDate?.text = self.dataSource[indexPath.row].valueForKey(GL_MESSAGE_CREATE_TIME) as? String

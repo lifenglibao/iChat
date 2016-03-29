@@ -359,7 +359,6 @@ class SourceHelper: NSObject{
             do {
                 
                 try database.executeUpdate(CLEAR_FRIENDS_LIST_TABLE(tableName), values: nil)
-//                try database.executeUpdate(RESET_FRIENDS_LIST_TABLE_REFERENCE_COUNT(tableName), values: nil)
                 
                 for (var i = 0; i<dataSource.count; i++) {
                     

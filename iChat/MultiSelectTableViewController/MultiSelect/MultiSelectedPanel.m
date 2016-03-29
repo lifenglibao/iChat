@@ -11,13 +11,14 @@
 
 #import "MultiSelectItem.h"
 #import "UIView+XHRemoteImage.h"
-
+#import "CommonFunctions.h"
 
 @interface MultiSelectedPanel()<UITabBarControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,
                                 UICollectionViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIImageView *bkgImageView;
 @property (weak, nonatomic) IBOutlet UIButton *confirmBtn;
+@property (weak, nonatomic) IBOutlet UITextField *groupNameTextField;
 
 
 //@property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -83,8 +84,12 @@
 }
 
 - (IBAction)confirmBtnPressed:(id)sender {
-    if (self.delegate&&[self.delegate respondsToSelector:@selector(didConfirmWithMultiSelectedPanel:)]) {
-        [self.delegate didConfirmWithMultiSelectedPanel:self];
+    if ([self.groupNameTextField.text length]==0) {
+        [CommonFunctions showAlertWithTitle:@"" msg:@"Please enter your group name" delegate:self cancelTitle:@"OK"];
+        return;
+    }
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(didConfirmWithMultiSelectedPanel:withGroupName:)]) {
+        [self.delegate didConfirmWithMultiSelectedPanel:self withGroupName:self.groupNameTextField.text];
     }
 }
 

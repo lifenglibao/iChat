@@ -197,7 +197,7 @@
 {
     [super viewDidLayoutSubviews];
 #define kSelectPanelHeight 0.0f
-    self.tableView.frame = CGRectMake(0, kSelectPanelHeight, self.view.frameWidth, self.view.frameHeight-kSelectPanelHeight-50);
+    self.tableView.frame = CGRectMake(0, kSelectPanelHeight, self.view.frameWidth, self.view.frameHeight-kSelectPanelHeight-100);
     
 //    CGFloat topY = 0.0f;
 //    //导航View的位置
@@ -207,7 +207,7 @@
 //    }
     self.letterIndexView.frame = CGRectMake(self.tableView.frameRight-20.0f, kSelectPanelHeight, 20.0f, self.view.frameHeight-kSelectPanelHeight);
     
-    self.selectedPanel.frame = CGRectMake(0, self.tableView.frameBottom-10, self.view.frameWidth, 64);
+    self.selectedPanel.frame = CGRectMake(0, self.tableView.frameBottom-10, self.view.frameWidth, 110);
     
 }
 
@@ -412,11 +412,11 @@
     [self.selectedIndexes removeObjectAtIndex:index];
 }
 
-- (void)didConfirmWithMultiSelectedPanel:(MultiSelectedPanel*)multiSelectedPanel
+- (void)didConfirmWithMultiSelectedPanel:(MultiSelectedPanel*)multiSelectedPanel withGroupName:(NSString*)groupName
 {
-    NSLog(@"%@",self.selectedItems);
-    
+
     NSMutableArray *temp;
+    _appDelegate.GROUP_NAME_STRING = @"";
     [_appDelegate.GROUP_FRIEND_DATA removeAllObjects];
     for (MultiSelectItem *item in self.selectedItems) {
         
@@ -426,9 +426,10 @@
                                             forKeys:[NSArray arrayWithObjects:FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR,nil]], nil];
         
         [_appDelegate.GROUP_FRIEND_DATA addObjectsFromArray:temp];
-
     }
     
+    _appDelegate.GROUP_NAME_STRING = groupName;
+
     [self dismiss];
     
     // 已经选择的为self.selectedItems或者(原本传递进来的items里找selected=YES的)
@@ -440,7 +441,7 @@
     //找到名字里有searchText关键字的
     searchText = [searchText stringByReplacingOccurrencesOfString:@" " withString:@""];
     
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"name CONTAINS[cd] %@",searchText];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"friend_name CONTAINS[cd] %@",searchText];
     self.searchResult = [self.items filteredArrayUsingPredicate:pre];
     
     [self.searchController.searchResultsTableView reloadData];

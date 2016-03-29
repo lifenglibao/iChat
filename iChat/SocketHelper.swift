@@ -24,6 +24,10 @@ class SocketHelper: NSObject{
                 appDelegate.webSocket.send(GET_FRIEND_LIST_CMD(appDelegate.SELF_USER_ID))
             }
             
+            if (cmd == CMD_GET_OFFLINE_MESSAGE) {
+                appDelegate.webSocket.send(GET_OFFLINE_MESSAGE(appDelegate.SELF_USER_ID, LAST_MSG_ID: "0"))
+            }
+            
             if (cmd == CMD_MESSAGE) {
                 appDelegate.webSocket.send(SEND_MSG_CHAT_CMD(appDelegate.SELF_USER_ID,
                                                             TO_ID: object.objectForKey(FRIEND_ID) as! String,
@@ -41,8 +45,7 @@ class SocketHelper: NSObject{
                 }
                 temp.append(appDelegate.SELF_USER_ID)
                 let invite_id = temp.map{String($0)}.joinWithSeparator(",")
-                print(invite_id)
-                appDelegate.webSocket.send(CREATE_GROUP_CHAT_CMD("test", CHANNAL_ID: 0, SELFS_ID: appDelegate.SELF_USER_ID, INVITE_ID:invite_id, GROUP_AVATAR: ""))
+                appDelegate.webSocket.send(CREATE_GROUP_CHAT_CMD(appDelegate.GROUP_NAME_STRING, CHANNAL_ID: 0, SELFS_ID: appDelegate.SELF_USER_ID, INVITE_ID:invite_id, GROUP_AVATAR: ""))
             }
             
         }else{
