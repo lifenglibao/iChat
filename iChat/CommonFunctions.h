@@ -24,4 +24,5 @@
 + (NSString *)getStringFromDate:(NSDate *)date;
 + (NSDate *)getDateFromString:(NSString *)date;
 + (NSDate *)getDateFromStringWithGMT:(NSString *)date;
++(NSString *) getAvailStr:(id) str;
 @end

@@ -136,5 +136,21 @@ static UIWindow *window;
     [actionSheet showInView:view.window];
 }
 
++(NSString *) getAvailStr:(id) str
+{
+    if (nil!=str && str!=[NSNull null]) {
+        if ([str isKindOfClass:[NSString class]]) {
+            if (![str isEqualToString:@"<null>"] && ![str isEqualToString:@"NaN"]) {
+                return str;
+            }else{
+                return @"";
+            }
+        }
+        
+        return str;
+    }
+    
+    return @"";
+}
 
 @end

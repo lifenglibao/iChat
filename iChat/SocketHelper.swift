@@ -24,6 +24,14 @@ class SocketHelper: NSObject{
                 appDelegate.webSocket.send(GET_FRIEND_LIST_CMD(appDelegate.SELF_USER_ID))
             }
             
+            if (cmd == CMD_MESSAGE) {
+                appDelegate.webSocket.send(SEND_MSG_CHAT_CMD(appDelegate.SELF_USER_ID,
+                                                            TO_ID: object.objectForKey(FRIEND_ID) as! String,
+                                                          CHANNAL: object.objectForKey("to") as! String,
+                                                        CHAT_DATA: object.objectForKey(GL_MESSAGE) as! String,
+                                                             TYPE: object.objectForKey(MSG_TYPE_TEXT) as! String))
+            }
+            
             if (cmd == CMD_CREATE_GROUP_CHAT) {
                 
                 var temp = [String]()

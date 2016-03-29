@@ -17,8 +17,8 @@ let socketHelper = SocketHelper()
 
 //*****************-- API LINK --**************//
 
-let API_URL = "ws://192.168.1.129:9503/" //test
-//let API_URL = "ws://52.76.146.143:9501/" //dev
+//let API_URL = "ws://192.168.1.129:9503/" //test
+let API_URL = "ws://52.76.146.143:9501/" //dev
 
 //*****************-- STATUS CODE --**************//
 
@@ -96,8 +96,8 @@ func CREATE_GROUP_CHAT_CMD(GROUP_NAME:String, CHANNAL_ID:Int, SELFS_ID:String, I
 
 //*****************-- CMD CREATE PRIVATE CHAT--**************//
 
-func CREATE_PRIVATE_CHAT_CMD(SELFS_ID:String, TO_ID:String,CHAT_DATA:String,TYPE:String)->String{
-    return "{\"cmd\":\"message\",\"from\":\"\(SELFS_ID)\",\"to\":\"\(TO_ID)\",\"channal\":0,\"data\":\"\(CHAT_DATA)\",\"type\":\"\(TYPE)\"}"
+func SEND_MSG_CHAT_CMD(SELFS_ID:String, TO_ID:String, CHANNAL:String, CHAT_DATA:String,TYPE:String)->String{
+    return "{\"cmd\":\"message\",\"from\":\"\(SELFS_ID)\",\"to\":\"\(TO_ID)\",\"channal\":\"\(CHANNAL)\",\"data\":\"\(CHAT_DATA)\",\"type\":\"\(TYPE)\"}"
 }
 
 
@@ -117,11 +117,11 @@ func UPDATE_CHAT_BADGE(TABLE_NAME:String, GROUP_ID:Int, GROUP_NAME:String, IS_GR
 }
 
 func UPDATE_CHAT_BADGE_FOR_BADGE(TABLE_NAME:String, BADGE:Int)->String{
-    return " update chat_badge set badge = \(BADGE) where table_name = \'\(TABLE_NAME)\';"
+    return " update chat_badge set badge = '\(BADGE)' where table_name = '\(TABLE_NAME)';"
 }
 
 func SELECT_CHAT_LIST_FOR_BADGE(TABLE_NAME:String)->String{
-    return " SELECT badge from chat_badge WHERE table_name = \'\(TABLE_NAME)\';"
+    return " SELECT badge from chat_badge WHERE table_name = '\(TABLE_NAME)';"
 }
 
 func FIND_CHAT_TABLE(TABLE_NAME:String)->String{

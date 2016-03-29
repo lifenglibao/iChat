@@ -125,7 +125,7 @@
 //    UIImageView *imageView = (UIImageView*)[cell.contentView viewWithTag:999];
     
     MultiSelectItem *item = self.selectedItems[indexPath.row];
-    [imageView setImageWithURL:item.friend_avatar];
+    [imageView setImageWithURL:item.friend_avatar placeholer:[UIImage imageNamed:@"placeholderImage"]];
     
     return cell;
 }

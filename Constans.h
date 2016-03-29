@@ -81,7 +81,7 @@
 
 //*****************-- CMD CREATE PRIVATE CHAT--**************//
 
-#define CREATE_PRIVATE_CHAT_CMD(SELFS_ID,TO_ID,CHAT_DATA,TYPE) [NSString stringWithFormat:@" {\"cmd\":\"message\",\"from\":\"%@\",\"to\":\"%@\",\"channal\":0,\"data\":\"%@\",\"type\":\"%@\"}",SELFS_ID,TO_ID,CHAT_DATA,TYPE]
+#define SEND_MSG_CHAT_CMD(SELFS_ID,TO_ID,CHANNAL,CHAT_DATA,TYPE) [NSString stringWithFormat:@" {\"cmd\":\"message\",\"from\":\"%@\",\"to\":\"%@\",\"channal\":\"%@\",\"data\":\"%@\",\"type\":\"%@\"}",SELFS_ID,TO_ID,CHANNAL,CHAT_DATA,TYPE]
 
 
 //****************-- DATA BASE --******************//

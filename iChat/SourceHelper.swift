@@ -178,14 +178,42 @@ class SourceHelper: NSObject{
                 let s   = try database.executeQuery(sql, values: nil)
                 
                 while s.next(){
-                    let type        = s.stringForColumn(GL_MESSAGE_TYPE)
-                    let is_sender   = s.stringForColumn(GL_IS_SENDER)
+                    let friend_id   = s.stringForColumn(FRIEND_ID)
+                    let friend_name = s.stringForColumn(FRIEND_NAME)
+                    let friend_ava  = s.stringForColumn(FRIEND_AVATAR)
                     let message     = s.stringForColumn(GL_MESSAGE)
+                    let is_sender   = s.stringForColumn(GL_IS_SENDER)
                     let time        = s.stringForColumn(GL_MESSAGE_CREATE_TIME)
-                    
+                    let type        = s.stringForColumn(GL_MESSAGE_TYPE)
+                    let is_group    = s.stringForColumn(GL_IS_GROUP)
+                    let is_show     = s.stringForColumn(GL_IS_SHOW)
+                    let group_id    = s.stringForColumn(GL_GROUP_ID)
+                    let group_name  = s.stringForColumn(GL_GROUP_NAME)
+
                     array.addObject(NSDictionary(
-                        objects: [is_sender, type, message,time],
-                        forKeys: [GL_IS_SENDER,GL_MESSAGE_TYPE,GL_MESSAGE,GL_MESSAGE_CREATE_TIME]))
+                        objects: [friend_id,
+                                friend_name,
+                                 friend_ava,
+                                    message,
+                                  is_sender,
+                                       time,
+                                       type,
+                                   is_group,
+                                    is_show,
+                                   group_id,
+                                 group_name],
+                        
+                        forKeys: [FRIEND_ID,
+                                FRIEND_NAME,
+                              FRIEND_AVATAR,
+                                 GL_MESSAGE,
+                               GL_IS_SENDER,
+                     GL_MESSAGE_CREATE_TIME,
+                            GL_MESSAGE_TYPE,
+                                GL_IS_GROUP,
+                                 GL_IS_SHOW,
+                                GL_GROUP_ID,
+                              GL_GROUP_NAME]))
                 }
                 
                 s.close()

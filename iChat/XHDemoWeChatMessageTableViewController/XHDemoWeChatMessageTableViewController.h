@@ -9,13 +9,19 @@
 #import "XHMessageTableViewController.h"
 #import "CommonFunctions.h"
 #import "AuxilaryService.h"
+#import "SRWebSocket.h"
+#import "JSONKit.h"
+#import "FMDB.h"
+#import "Constans.h"
+
 @interface XHDemoWeChatMessageTableViewController : XHMessageTableViewController<SRWebSocketDelegate>
 
 - (void)loadDemoDataSource;
-@property (nonatomic,strong) NSDictionary *friends_dic;
+@property (nonatomic,strong) NSDictionary *chatDataSource;
 @property (nonatomic,strong) UIViewController *host;
 @property (nonatomic) BOOL isGetLocalChatData;
 @property (nonatomic) BOOL isPrivateChat;
 @property (nonatomic) BOOL isGroupChat;
+@property (nonatomic) BOOL isFirstChat;
 
 @end

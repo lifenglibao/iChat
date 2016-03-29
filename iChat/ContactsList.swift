@@ -89,9 +89,9 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
             if (sourceHelper.isNotNull(self.dataSource[indexPath.row].valueForKey(AVATAR)!)) {
-                cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(AVATAR) as! String), placeholderImage: UIImage(named: "icon"))
+                cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(AVATAR) as! String), placeholderImage: UIImage(named: "placeholderImage"))
             }else{
-                cell.avatarImg.image = UIImage(named:"icon")
+                cell.avatarImg.image = UIImage(named:"placeholderImage")
             }
         })
 
@@ -109,11 +109,10 @@ class ContactsList:UITableViewController,UISearchBarDelegate,SRWebSocketDelegate
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         let mesChatVC = XHDemoWeChatMessageTableViewController.init()
-        let friend_id = self.dataSource[indexPath.row].valueForKey(USER_ID)
-        let friend_name = self.dataSource[indexPath.row].valueForKey(NAME)
-        let friend_avatar = self.dataSource[indexPath.row].valueForKey(AVATAR)
-        mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
+        mesChatVC.chatDataSource = self.dataSource[indexPath.row] as! [NSObject : AnyObject]
         mesChatVC.isGetLocalChatData = true
+        mesChatVC.isPrivateChat = true
+        mesChatVC.isFirstChat   = true
         self.tabBarController?.navigationController?.pushViewController(mesChatVC, animated: true)
 
     }

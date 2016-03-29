@@ -16,7 +16,6 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
     var popMenu  = XHPopMenu?()
     var database = FMDatabase()
     var receivedDataFromSocket = NSDictionary()
-    var group_friendDic = NSMutableArray()
 
     var badgeNumber:NSInteger = 0
     
@@ -44,20 +43,20 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
                 let friend_id   = self.receivedDataFromSocket.objectForKey("from") as! String
                 let is_group    = channal_id > 0 ? true : false
                 let group_id    = channal_id > 0 ? channal_id : 0
-                let group_name  = channal_id > 0 ? sourceHelper.getGroupNameByGroupID(group_id) : ""
+                let group_name  = channal_id > 0 ? self.receivedDataFromSocket.objectForKey("channalName") as! String : ""
                 let table_name  = channal_id > 0 ? "group"+(self.receivedDataFromSocket.objectForKey("channal") as! String) : self.receivedDataFromSocket.objectForKey("from") as! String
 
                 sourceHelper.updateChatTable(
-                    table_name,
-                    friendID: friend_id,
-                    message: msg,
-                    isSender: false,
-                    time: date,
-                    type: 0,
-                    isGroup: is_group,
-                    isShow: true,
-                    groupID: group_id,
-                    groupName: group_name)
+                              table_name,
+                                friendID: friend_id,
+                                 message: msg,
+                                isSender: false,
+                                    time: date,
+                                    type: 0,
+                                 isGroup: is_group,
+                                  isShow: true,
+                                 groupID: group_id,
+                               groupName: group_name)
                 
                 self.calculateBadgeNumber(table_name)
                 sourceHelper.updateAppDelegatChatListData()
@@ -82,9 +81,6 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
                 let group_id    = self.receivedDataFromSocket.objectForKey("data")?.objectForKey("id")!.integerValue
                 let table_name  = "group" + ((self.receivedDataFromSocket.objectForKey("data")?.objectForKey("id"))! as! String)
                 let date        = CommonFunctions.getDateFromStringWithGMT(self.receivedDataFromSocket.objectForKey("data")?.valueForKey("created_at") as! String)
-
-                self.group_friendDic = self.receivedDataFromSocket.objectForKey("data")!.valueForKey("inviteUsers") as! NSMutableArray
-                print(self.group_friendDic)
                 
                 sourceHelper.updateChatTable(
                             table_name,
@@ -137,8 +133,8 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
         if appDelegate.GROUP_FRIEND_DATA.count != 0{
             
             print(appDelegate.GROUP_FRIEND_DATA)
-
             socketHelper.socketCMDStatus(CMD_CREATE_GROUP_CHAT, object:appDelegate.GROUP_FRIEND_DATA)
+            appDelegate.GROUP_FRIEND_DATA.removeAllObjects()
             
         }else{
             dataSource = appDelegate.CHAT_LIST_DATA
@@ -185,9 +181,9 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 if (sourceHelper.isNotNull(self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR)!)) {
-                    cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR) as! String), placeholderImage: UIImage(named: "icon"))
+                    cell.avatarImg.sd_setImageWithURL(NSURL.init(string: self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR) as! String), placeholderImage: UIImage(named: "placeholderImage"))
                 }else{
-                    cell.avatarImg.image = UIImage(named:"icon")
+                    cell.avatarImg.image = UIImage(named:"placeholderImage")
                 }
             })
             
@@ -215,22 +211,16 @@ class MainChat: UITableViewController,UISearchBarDelegate,SRWebSocketDelegate,po
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        
+
         badgeNumber = 0
 
         sourceHelper.updateChatBadgeNumber(self.dataSource[indexPath.row].valueForKey(GL_TABLE_NAME) as! String, badge: 0)
+        sourceHelper.updateAppDelegatChatListData()
 
         let mesChatVC = XHDemoWeChatMessageTableViewController.init()
-        let friend_id = self.dataSource[indexPath.row].valueForKey(FRIEND_ID)
-        let friend_name = self.dataSource[indexPath.row].valueForKey(FRIEND_NAME)
-        let friend_avatar = self.dataSource[indexPath.row].valueForKey(FRIEND_AVATAR)
-        if  (sourceHelper.isNotNull(dataSource[indexPath.row].valueForKey(GL_GROUP_NAME)!)) {
-            mesChatVC.isGroupChat = true
-            mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
-        }else{
-            mesChatVC.isPrivateChat = true
-            mesChatVC.friends_dic = NSDictionary(objects: [friend_id!,friend_name!,friend_avatar!], forKeys: [FRIEND_ID,FRIEND_NAME,FRIEND_AVATAR]) as [NSObject : AnyObject]
-        }
+
+        sourceHelper.isNotNull(dataSource[indexPath.row].valueForKey(GL_GROUP_NAME)!) ? (mesChatVC.isGroupChat = true) : (mesChatVC.isPrivateChat = true)
+        mesChatVC.chatDataSource = self.dataSource[indexPath.row] as! [NSObject : AnyObject]
         mesChatVC.isGetLocalChatData = true
         self.tabBarController?.navigationController?.pushViewController(mesChatVC, animated: true)
 

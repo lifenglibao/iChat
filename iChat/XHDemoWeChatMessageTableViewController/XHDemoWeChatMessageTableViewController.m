@@ -24,12 +24,12 @@
 @property (nonatomic, strong) NSArray *emotionManagers;
 
 @property (nonatomic, strong) XHMessageTableViewCell *currentSelectedCell;
-@property (nonatomic, strong) SRWebSocket *webSocket;
 @property (nonatomic, strong) NSDictionary *receivedDataFromSocket;
 @property (nonatomic, strong) AppDelegate *appDelegate;
 @property (nonatomic, strong) FMDatabase * fmDataBase;
 @property (nonatomic, strong) SourceHelper * sourceHelper;
 @property (nonatomic, strong) NSMutableArray * localChatData;
+@property (nonatomic, strong) SocketHelper * socketHelper;
 
 @end
 
@@ -38,47 +38,56 @@
 
 - (void)didGetText:(NSString *)text fromSender:(NSString *)sender onDate:(NSDate *)date {
 
+    if ([text isEqualToString:@""]){
+        return;
+    }
     XHMessage *textMessage = [[XHMessage alloc] initWithText:text sender:sender timestamp:date];
     UIImageView * imgV = [[UIImageView alloc] init];
     
-    [imgV sd_setImageWithURL:
-     [NSURL URLWithString:
-      [NSString stringWithFormat:@"%@", _friends_dic ? [_friends_dic objectForKey:FRIEND_AVATAR] : [_receivedDataFromSocket objectForKey:AVATAR]]]];
+    if (_receivedDataFromSocket && ![[_receivedDataFromSocket objectForKey:AVATAR] isEqualToString:@""]) {
+        [imgV sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",[_receivedDataFromSocket objectForKey:AVATAR]]] placeholderImage:[UIImage imageNamed:@"icon"]];
+    }else{
+        [imgV sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",[_chatDataSource objectForKey:FRIEND_AVATAR]]] placeholderImage:[UIImage imageNamed:@"icon"]];
+    }
     
     textMessage.avatar = imgV.image;
     
     textMessage.bubbleMessageType = XHBubbleMessageTypeReceiving;
     [self getMsgFromFriends:textMessage];
-
+    
     if (!_isGetLocalChatData) {
-        
-        if (_friends_dic!=nil || _receivedDataFromSocket!=nil) {
+
+        if (_receivedDataFromSocket != nil){
+            NSString *channal_id = _isPrivateChat ? @"0" : [_receivedDataFromSocket objectForKey:@"channal"];
+            NSString *table_name = _isPrivateChat ? [_receivedDataFromSocket objectForKey:@"from"] : [NSString stringWithFormat:@"group%@",channal_id];
+            NSString *friend_id  = [_receivedDataFromSocket objectForKey:@"from"];
+            NSInteger group_id   = channal_id.integerValue > 0 ? channal_id.integerValue : 0;
+            NSString *group_name = group_id > 0 ? [_receivedDataFromSocket objectForKey:@"channalName"] : @"";
+            BOOL is_group        = group_id > 0 ? true : false;
             
-            [_sourceHelper updateChatTable:[_friends_dic objectForKey:FRIEND_ID]
-                                  friendID:[_friends_dic objectForKey:FRIEND_ID]
+            [_sourceHelper updateChatTable:table_name
+                                  friendID:friend_id
                                    message:text
                                   isSender:false
                                       time:date
                                       type:0
-                                   isGroup:false
+                                   isGroup:is_group
                                     isShow:true
-                                   groupID:0
-                                 groupName:@""];
-            
+                                   groupID:group_id
+                                 groupName:group_name];
             [_sourceHelper updateAppDelegatChatListData];
         }
         
     }else{
         
     }
-    
 
 }
 
 
 - (XHMessage *)getPhotoMessageWithBubbleMessageType:(XHBubbleMessageType)bubbleMessageType {
     XHMessage *photoMessage = [[XHMessage alloc] initWithPhoto:nil thumbnailUrl:@"http://d.hiphotos.baidu.com/image/pic/item/30adcbef76094b361721961da1cc7cd98c109d8b.jpg" originPhotoUrl:nil sender:@"Jack" timestamp:[NSDate date]];
-    photoMessage.avatar = [UIImage imageNamed:@"icon"];
+    photoMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     photoMessage.avatarUrl = @"http://www.pailixiu.com/jack/JieIcon@2x.png";
     photoMessage.bubbleMessageType = bubbleMessageType;
     
@@ -88,7 +97,7 @@
 - (XHMessage *)getVideoMessageWithBubbleMessageType:(XHBubbleMessageType)bubbleMessageType {
     NSString *videoPath = [[NSBundle mainBundle] pathForResource:@"IMG_1555.MOV" ofType:@""];
     XHMessage *videoMessage = [[XHMessage alloc] initWithVideoConverPhoto:[XHMessageVideoConverPhotoFactory videoConverPhotoWithVideoPath:videoPath] videoPath:videoPath videoUrl:nil sender:@"Jayson" timestamp:[NSDate date]];
-    videoMessage.avatar = [UIImage imageNamed:@"icon"];
+    videoMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     videoMessage.avatarUrl = @"http://www.pailixiu.com/jack/JieIcon@2x.png";
     videoMessage.bubbleMessageType = bubbleMessageType;
     
@@ -97,7 +106,7 @@
 
 - (XHMessage *)getVoiceMessageWithBubbleMessageType:(XHBubbleMessageType)bubbleMessageType {
     XHMessage *voiceMessage = [[XHMessage alloc] initWithVoicePath:nil voiceUrl:nil voiceDuration:@"1" sender:@"Jayson" timestamp:[NSDate date] isRead:NO];
-    voiceMessage.avatar = [UIImage imageNamed:@"icon"];
+    voiceMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     voiceMessage.avatarUrl = @"http://www.pailixiu.com/jack/JieIcon@2x.png";
     voiceMessage.bubbleMessageType = bubbleMessageType;
     
@@ -106,7 +115,7 @@
 
 - (XHMessage *)getEmotionMessageWithBubbleMessageType:(XHBubbleMessageType)bubbleMessageType {
     XHMessage *emotionMessage = [[XHMessage alloc] initWithEmotionPath:[[NSBundle mainBundle] pathForResource:@"emotion1.gif" ofType:nil] sender:@"Jayson" timestamp:[NSDate date]];
-    emotionMessage.avatar = [UIImage imageNamed:@"icon"];
+    emotionMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     emotionMessage.avatarUrl = @"http://www.pailixiu.com/jack/JieIcon@2x.png";
     emotionMessage.bubbleMessageType = bubbleMessageType;
     
@@ -115,7 +124,7 @@
 
 - (XHMessage *)getGeolocationsMessageWithBubbleMessageType:(XHBubbleMessageType)bubbleMessageType {
     XHMessage *localPositionMessage = [[XHMessage alloc] initWithLocalPositionPhoto:[UIImage imageNamed:@"Fav_Cell_Loc"] geolocations:@"中国广东省广州市天河区东圃二马路121号" location:[[CLLocation alloc] initWithLatitude:23.110387 longitude:113.399444] sender:@"Jack" timestamp:[NSDate date]];
-    localPositionMessage.avatar = [UIImage imageNamed:@"icon"];
+    localPositionMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     localPositionMessage.avatarUrl = @"http://www.pailixiu.com/jack/meIcon@2x.png";
     localPositionMessage.bubbleMessageType = bubbleMessageType;
     
@@ -171,22 +180,14 @@
 - (void) getLocalChatData{
     
     if (_isGetLocalChatData) {
-        if (_isPrivateChat) {
-            _localChatData = [_sourceHelper getChatContentForFriend:[_friends_dic objectForKey:FRIEND_ID]];
-        }else{
-            _localChatData = [_sourceHelper getChatContentForFriend:[_friends_dic objectForKey:FRIEND_ID]];
-        }
+        
+        _localChatData = [_sourceHelper getChatContentForFriend:[_chatDataSource valueForKey:GL_TABLE_NAME]];
         
         if (_localChatData.count>0) {
             
-            NSLog(@"getChatContentForFriend %@----%@",[_friends_dic objectForKey:FRIEND_NAME], _localChatData);
-            
             for (int i = 0; i<_localChatData.count; i++) {
                 
-                //            [[_localChatData objectAtIndex:i] valueForKey:FRIEND_MESSAGE_TYPE];
-                
                 NSInteger status = [[[_localChatData objectAtIndex:i] valueForKey:GL_IS_SENDER] integerValue];
-                
                 NSString *meg = [[_localChatData objectAtIndex:i] valueForKey:GL_MESSAGE];
                 NSDate  *time = [CommonFunctions getDateFromString:[[_localChatData objectAtIndex:i] valueForKey:GL_MESSAGE_CREATE_TIME]];
                 
@@ -195,9 +196,10 @@
                 }else{
                     [self didGetText:meg fromSender:nil onDate:time];
                 }
+                
             }
             _isGetLocalChatData = false;
-
+            
         }else{
             _isGetLocalChatData = false;
         }
@@ -214,6 +216,7 @@
     _appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     _appDelegate.webSocket.delegate = self;
     _sourceHelper = [[SourceHelper alloc] init];
+    _socketHelper = [[SocketHelper alloc] init];
     _fmDataBase = [[FMDatabase alloc] initWithPath:_appDelegate.getdestinationPath];
     
     [self getLocalChatData];
@@ -449,111 +452,53 @@
     textMessage.avatar = imgV.image;
     [self addMessage:textMessage];
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeText];
-
+    NSLog(@"%@",self.chatDataSource);
     if (!_isGetLocalChatData) {
-        [_webSocket send:CREATE_PRIVATE_CHAT_CMD(_appDelegate.SELF_USER_ID, [_friends_dic objectForKey:FRIEND_ID], text, MSG_TYPE_TEXT)];
-        [_sourceHelper updateChatTable:[_friends_dic objectForKey:FRIEND_ID]
-                              friendID:[_friends_dic objectForKey:FRIEND_ID]
+        
+        NSString *channal_id = _isFirstChat ? @"0" : [self.chatDataSource objectForKey:@"group_id"];
+        NSString *friend_id  = _isFirstChat ? [self.chatDataSource objectForKey:@"userId"] : [self.chatDataSource objectForKey:@"friend_id"];
+        NSString *table_name = _isFirstChat ? [self.chatDataSource objectForKey:@"userId"] : [self.chatDataSource objectForKey:@"table_name"];
+        NSInteger group_id   = channal_id.integerValue > 0 ? channal_id.integerValue : 0;
+        NSString *group_name = group_id > 0 ? [_sourceHelper getGroupNameByGroupID:group_id] : @"";
+        BOOL is_group        = group_id > 0 ? true : false;
+        NSDictionary *obj;
+        
+        if (_isPrivateChat) {
+            obj = [NSDictionary dictionaryWithObjectsAndKeys:
+                                            _appDelegate.SELF_USER_ID,USER_ID,
+                                                          friend_id,FRIEND_ID,
+                                                                   @"0",@"to",
+                                                              text,GL_MESSAGE,
+                                                        @"text",MSG_TYPE_TEXT,
+                                                                         nil];
+            
+        }else{
+            obj = [NSDictionary dictionaryWithObjectsAndKeys:
+                                            _appDelegate.SELF_USER_ID,USER_ID,
+                                                               @"0",FRIEND_ID,
+                                                             channal_id,@"to",
+                                                              text,GL_MESSAGE,
+                                                        @"text",MSG_TYPE_TEXT,
+                                                                         nil];
+        }
+        [_socketHelper socketCMDStatus:CMD_MESSAGE object:obj];
+
+        [_sourceHelper updateChatTable:table_name
+                              friendID:friend_id
                                message:text
                               isSender:true
                                   time:date
                                   type:0
-                               isGroup:false
+                               isGroup:is_group
                                 isShow:true
-                               groupID:0
-                             groupName:@""];
-//        [self updatePrivateChatTable:text isSender:YES createTime:date type:0];
+                               groupID:group_id
+                             groupName:group_name];
         [_sourceHelper updateAppDelegatChatListData];
     }else{
 
     }
 }
 
-//- (void)updatePrivateChatTable :(NSString *)message isSender:(BOOL)isSender createTime:(NSDate*)time type:(int)type{
-//    
-//    if ([_fmDataBase open]) {
-//        @try {
-//            int status;
-//            if (isSender) {
-//                status = 1;
-//            }else{
-//                status = 0;
-//            }
-//            
-//            NSString *createTime = [CommonFunctions getStringFromDate:time];
-//            
-//            NSString * sql = CREATE_PRIVATE_CHAT_TABLE([[_friends_dic objectForKey:FRIEND_ID] integerValue]);
-//            NSString * sql2 = UPDATE_PRIVATE_CHAT_TABLE([[_friends_dic objectForKey:FRIEND_ID] integerValue], message, status, createTime, type);
-//            
-//            if ([_sourceHelper checkTableIsExists:_fmDataBase tableName:[[_friends_dic objectForKey:FRIEND_ID] integerValue]]) {
-//                
-//                BOOL success_sql2 = [_fmDataBase executeUpdate:sql2];
-//                
-//                if (success_sql2) {
-//                    NSLog(@"INSERT into %ld table success!!!",[[_friends_dic objectForKey:FRIEND_ID] integerValue]);
-//                }
-//
-//                
-//            }else{
-//                BOOL success_sql = [_fmDataBase executeUpdate:sql];
-//                if (success_sql) {
-//                    
-//                    NSLog(@"create chat table with %@ success!!!",[_friends_dic objectForKey:FRIEND_NAME]);
-//                    BOOL success_sql2 = [_fmDataBase executeUpdate:sql2];
-//                    
-//                    if (success_sql2) {
-//                        NSLog(@"INSERT into %ld table success!!!",[[_friends_dic objectForKey:FRIEND_ID] integerValue]);
-//                    }
-//                    
-//                }else{
-//                    
-//                }
-//            }
-//
-//            if (![self isAlreadyOnChatListTable]) {
-//                NSString * sql3 = UPDATE_CHAT_LIST([[_friends_dic objectForKey:FRIEND_ID] integerValue], 1, 0);
-//                [_fmDataBase executeUpdate:sql3];
-//                NSLog(@"update chat list table success!!!");
-//            }else{
-//                
-//            }
-//        }
-//        @catch (NSException *exception) {
-//            NSLog(@"%@",exception.debugDescription);
-//        }
-//        @finally {
-//        }
-//    }
-//}
-//
-//- (BOOL) isAlreadyOnChatListTable {
-//    if ([_fmDataBase open]) {
-//        
-//        int totalCount;
-//
-//        @try {
-//            
-//            NSString * sql = [NSString stringWithFormat:@"select count(*) from chat_list where friend_id = %ld",[[_friends_dic objectForKey:FRIEND_ID] integerValue]];
-//            
-//            FMResultSet *s = [_fmDataBase executeQuery:sql];
-//            
-//            if ([s next]) {
-//                totalCount = [s intForColumnIndex:0];
-//            }
-//            [s close];
-//        }
-//        @catch (NSException *exception) {
-//            NSLog(@"%@",exception.debugDescription);
-//        }
-//        @finally {
-//            
-//            if (totalCount>0) {
-//                return true;
-//            }
-//            return false;
-//        }
-//    }
-//}
 
 /**
  *  发送图片消息的回调方法
@@ -564,7 +509,7 @@
  */
 - (void)didSendPhoto:(UIImage *)photo fromSender:(NSString *)sender onDate:(NSDate *)date {
     XHMessage *photoMessage = [[XHMessage alloc] initWithPhoto:photo thumbnailUrl:nil originPhotoUrl:nil sender:sender timestamp:date];
-    photoMessage.avatar = [UIImage imageNamed:@"icon"];
+    photoMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     photoMessage.avatarUrl = @"http://www.pailixiu.com/jack/meIcon@2x.png";
     [self addMessage:photoMessage];
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypePhoto];
@@ -579,7 +524,7 @@
  */
 - (void)didSendVideoConverPhoto:(UIImage *)videoConverPhoto videoPath:(NSString *)videoPath fromSender:(NSString *)sender onDate:(NSDate *)date {
     XHMessage *videoMessage = [[XHMessage alloc] initWithVideoConverPhoto:videoConverPhoto videoPath:videoPath videoUrl:nil sender:sender timestamp:date];
-    videoMessage.avatar = [UIImage imageNamed:@"icon"];
+    videoMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     videoMessage.avatarUrl = @"http://www.pailixiu.com/jack/meIcon@2x.png";
     [self addMessage:videoMessage];
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeVideo];
@@ -596,7 +541,7 @@
 - (void)didSendVoice:(NSString *)voicePath voiceDuration:(NSString *)voiceDuration fromSender:(NSString *)sender onDate:(NSDate *)date {
     
     XHMessage *voiceMessage = [[XHMessage alloc] initWithVoicePath:voicePath voiceUrl:nil voiceDuration:voiceDuration sender:sender timestamp:date];
-    voiceMessage.avatar = [UIImage imageNamed:@"icon"];
+    voiceMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     voiceMessage.avatarUrl = @"http://www.pailixiu.com/jack/meIcon@2x.png";
     [self addMessage:voiceMessage];
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeVoice];
@@ -611,7 +556,7 @@
  */
 - (void)didSendEmotion:(NSString *)emotionPath fromSender:(NSString *)sender onDate:(NSDate *)date {
     XHMessage *emotionMessage = [[XHMessage alloc] initWithEmotionPath:emotionPath sender:sender timestamp:date];
-    emotionMessage.avatar = [UIImage imageNamed:@"icon"];
+    emotionMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     emotionMessage.avatarUrl = @"http://www.pailixiu.com/jack/meIcon@2x.png";
     [self addMessage:emotionMessage];
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeEmotion];
@@ -622,7 +567,7 @@
  */
 - (void)didSendGeoLocationsPhoto:(UIImage *)geoLocationsPhoto geolocations:(NSString *)geolocations location:(CLLocation *)location fromSender:(NSString *)sender onDate:(NSDate *)date {
     XHMessage *geoLocationsMessage = [[XHMessage alloc] initWithLocalPositionPhoto:geoLocationsPhoto geolocations:geolocations location:location sender:sender timestamp:date];
-    geoLocationsMessage.avatar = [UIImage imageNamed:@"icon"];
+    geoLocationsMessage.avatar = [UIImage imageNamed:@"placeholderImage"];
     geoLocationsMessage.avatarUrl = @"http://www.pailixiu.com/jack/meIcon@2x.png";
     [self addMessage:geoLocationsMessage];
     [self finishSendMessageWithBubbleMessageType:XHBubbleMessageMediaTypeLocalPosition];

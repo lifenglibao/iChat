@@ -30,10 +30,7 @@
 
 // Categorys
 #import "UIScrollView+XHkeyboardControl.h"
-#import "SRWebSocket.h"
-#import "JSONKit.h"
-#import "FMDB.h"
-#import "Constans.h"
+
 @protocol XHMessageTableViewControllerDelegate <NSObject>
 
 @optional
@@ -165,7 +162,7 @@
 
 @end
 
-@interface XHMessageTableViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, XHMessageTableViewControllerDelegate, XHMessageTableViewControllerDataSource, XHMessageInputViewDelegate, XHMessageTableViewCellDelegate, XHShareMenuViewDelegate, XHEmotionManagerViewDelegate, XHEmotionManagerViewDataSource,SRWebSocketDelegate>
+@interface XHMessageTableViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, XHMessageTableViewControllerDelegate, XHMessageTableViewControllerDataSource, XHMessageInputViewDelegate, XHMessageTableViewCellDelegate, XHShareMenuViewDelegate, XHEmotionManagerViewDelegate, XHEmotionManagerViewDataSource>
 
 @property (nonatomic, weak) id <XHMessageTableViewControllerDelegate> delegate;
 
@@ -318,9 +315,6 @@
  */
 - (void)layoutOtherMenuViewHiden:(BOOL)hide;
 
-#pragma mark - WebSocket
-
-@property (nonatomic, strong) SRWebSocket *socket;
 
 
 @end
