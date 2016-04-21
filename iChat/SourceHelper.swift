@@ -14,7 +14,50 @@ class SourceHelper: NSObject{
 
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var database    = FMDatabase.init(path: (UIApplication.sharedApplication().delegate as! AppDelegate).getdestinationPath())
+    
+    func post(params : Dictionary<String, String>, url : String, postCompleted : (succeeded: Bool, msg: String) -> ()) {
+        let request = NSMutableURLRequest(URL: NSURL(string: url)!)
+        let session = NSURLSession.sharedSession()
+        request.HTTPMethod = "POST"
+        print(params)
+        do {
+            try request.HTTPBody = NSJSONSerialization.dataWithJSONObject(params, options: [])
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            print(request)
 
+        } catch let error as NSError {
+            
+            print(error.description)
+        }
+        
+        let task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
+            print("Response: \(response)")
+            let strData = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            print("Body: \(strData)")
+
+            do {
+                if let json = try NSJSONSerialization.JSONObjectWithData(data!, options: .MutableLeaves) as? NSDictionary {
+                    if let success = json["success"] as? Bool {
+                        print("Succes: \(success)")
+                        postCompleted(succeeded: success, msg: "Success")
+                    }
+                } else {
+                    let jsonStr = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                    print("Error could not parse JSON: \(jsonStr)")
+                    postCompleted(succeeded: false, msg: "Error")
+                }
+            } catch let err as NSError {
+                print(err.localizedDescription)
+                let jsonStr = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                print("Error could not parse JSON: '\(jsonStr)'")
+                postCompleted(succeeded: false, msg: "Error")
+
+            }
+        })
+        
+        task.resume()
+    }
     
     func getProfileConfigureArray()->NSMutableArray {
         

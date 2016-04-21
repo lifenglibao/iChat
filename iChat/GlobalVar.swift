@@ -158,3 +158,4 @@ func GET_FRIEDNS_BY_ID(TABLE_NAME:String, SEARCH_ID:String)->String{
 func GET_GROUP_NAME_BY_GROUP_ID(TABLE_NAME:String, SEARCH_ID:Int)->String{
     return " select group_name from \'\(TABLE_NAME)\' where group_id = \(SEARCH_ID);"
 }
+

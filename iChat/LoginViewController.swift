@@ -55,6 +55,7 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
             self.appDelegate.SELF_USER_ID  = dic.objectForKey(USER_ID) as! String
             self.appDelegate.SELF_USER_NAME  = dic.objectForKey(NAME) as! String
             self.appDelegate.SELF_USER_AVATAR  = dic.objectForKey(AVATAR) as! String
+            self.registerForICSServer()
             self.updateAccountTable(dic)
             self.dismissViewControllerAnimated(true, completion: nil)
             socketHelper.socketCMDStatus(CMD_GET_FRIENDS, object: self.appDelegate.SELF_USER_ID)
@@ -101,6 +102,21 @@ class LoginViewController: CommenBase,SRWebSocketDelegate{
         }else{
             print("database can not open!!!")
         }
+    }
+    
+    func registerForICSServer (){
+        let device_token = NSUserDefaults.standardUserDefaults().valueForKey("user_device_token") as! String
+        print(NSUserDefaults.standardUserDefaults().valueForKey("user_device_token"))
+        print(device_token)
+
+        sourceHelper.post(["project_id":"4","Platform":"1","device_token":"\(device_token)","user_id":"\(self.appDelegate.SELF_USER_ID)"], url: "http://54.254.224.36/ics/index.php/reg_device_token") { (succeeded, msg) -> () in
+            if succeeded {
+                
+            }else{
+                
+            }
+        }
+
     }
 
 }
